@@ -14,7 +14,9 @@ namespace Sprint3.Models
         [Required]
         public string HashSenha { get; set; } = string.Empty;
         [Required]
-        public List<Projeto> Projetos { get; set; } = new List<Projeto>(); 
+        public List<Projeto> Projetos { get; set; } = new List<Projeto>();
+
+        public List<ProjetoAcesso> ProjetosCompartilhados { get; set; } = new List<ProjetoAcesso>();
 
     }
 }

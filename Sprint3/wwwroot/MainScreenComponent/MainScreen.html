@@ -263,6 +263,48 @@
             font-weight: 500;
         }
 
+        .board-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .board-action-btn {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            border-radius: var(--radius-md);
+            padding: 0.45rem 0.75rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+            .board-action-btn:hover {
+                background: rgba(255, 255, 255, 0.14);
+            }
+
+        .member-strip {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+            margin-top: 0.35rem;
+        }
+
+        .member-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: #dbeafe;
+            background: rgba(59, 130, 246, 0.16);
+            border: 1px solid rgba(147, 197, 253, 0.18);
+            border-radius: 999px;
+            padding: 0.2rem 0.55rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
         .empty-board {
             flex: 1;
             display: flex;
@@ -631,6 +673,11 @@
                     <div>
                         <div class="board-title" id="boardTitle"></div>
                         <div class="board-meta" id="boardMeta"></div>
+                        <div class="member-strip" id="projectMembers"></div>
+                    </div>
+                    <div class="board-actions">
+                        <button type="button" class="board-action-btn" id="btnNovaAtividade">+ Nova atividade</button>
+                        <button type="button" class="board-action-btn" id="btnCompartilhar">Compartilhar</button>
                     </div>
                 </div>
                 <div class="board-columns" id="boardColumns"></div>
@@ -731,34 +778,48 @@
                 method: 'DELETE',
                 credentials: 'include'
             }),
-            listarTarefas: (projetoId) => fetch(`/api/Tarefas/Listartarefas/${projetoId}`, {
+            listarAtividades: (projetoId) => fetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
                 credentials: 'include'
             }),
-            criarTarefa: (projetoId, body) => fetch(`/api/Tarefas/projetos/${projetoId}/tarefas`, {
+            criarAtividade: (projetoId, body) => fetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(body)
             }),
-            atualizarTarefa: (projetoId, tarefaId, body) => fetch(`/api/Tarefas/projetos/${projetoId}/tarefas/${tarefaId}`, {
+            deletarAtividade: (projetoId, atividadeId) => fetch(`/api/Atividades/projetos/${projetoId}/atividades/${atividadeId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            }),
+            criarTarefa: (projetoId, atividadeId, body) => fetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(body)
+            }),
+            atualizarTarefa: (projetoId, atividadeId, tarefaId, body) => fetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas/${tarefaId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(body)
             }),
-            deletarTarefa: (projetoId, tarefaId) => fetch(`/api/Tarefas/projetos/${projetoId}/tarefas/${tarefaId}`, {
+            deletarTarefa: (projetoId, atividadeId, tarefaId) => fetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas/${tarefaId}`, {
                 method: 'DELETE',
                 credentials: 'include'
+            }),
+            listarMembros: (projetoId) => fetch(`/api/Projetos/${projetoId}/membros`, {
+                credentials: 'include'
+            }),
+            compartilharProjeto: (projetoId, body) => fetch(`/api/Projetos/${projetoId}/acessos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(body)
             })
             
         };
 
         const Prioridade = { Alta: 0, Media: 1, Baixa: 2 };
-
-        const COLUNAS = [
-            { id: 'tarefas', titulo: 'Tarefas', colClass: 'col-open', match: (t) => !t.concluida },
-            { id: 'concluidas', titulo: 'Concluídas', colClass: 'col-done', match: (t) => !!t.concluida }
-        ];
 
         function normPrio(p) {
             if (p === 'Alta' || p === 0) return Prioridade.Alta;
@@ -769,11 +830,13 @@
 
         let projetos = [];
         let projetoAtual = null;
-        let tarefas = [];
+        let atividades = [];
+        let membros = [];
         let draggedTarefaId = null;
+        let draggedAtividadeId = null;
         let modalTarefaBootstrap = null;
         let modalProjetoBootstrap = null;
-        let defaultColumnForNew = 'tarefas';
+        let atividadeAtualParaNovaTarefa = null;
 
         function toast(msg, isError) {
             const el = document.createElement('div');
@@ -804,12 +867,13 @@
             renderListaProjetos();
             if (projetoAtual && !projetos.find(p => p.id === projetoAtual.id)) {
                 projetoAtual = null;
-                tarefas = [];
+                atividades = [];
+                membros = [];
             }
             if (!projetoAtual && projetos.length) {
                 selecionarProjeto(projetos[0].id);
             } else if (projetoAtual) {
-                await carregarTarefas(projetoAtual.id);
+                await carregarBoardProjeto(projetoAtual.id);
             } else {
                 mostrarBoardVazio();
             }
@@ -848,16 +912,21 @@
                 mostrarBoardVazio();
                 return;
             }
-            await carregarTarefas(id);
+            await carregarBoardProjeto(id);
         }
 
-        async function carregarTarefas(projetoId) {
-            const res = await API.listarTarefas(projetoId);
+        async function carregarBoardProjeto(projetoId) {
+            const res = await API.listarAtividades(projetoId);
             if (res.status === 401) {
                 window.location.href = '/index.html';
                 return;
             }
-            tarefas = await handleRes(res);
+            atividades = await handleRes(res);
+            try {
+                membros = await handleRes(await API.listarMembros(projetoId));
+            } catch {
+                membros = [];
+            }
             renderBoard();
         }
 
@@ -875,31 +944,38 @@
             document.getElementById('boardContent').style.display = 'flex';
             const title = projetoAtual.descricao || ('Projeto #' + projetoAtual.id);
             document.getElementById('boardTitle').textContent = title;
-            const total = tarefas.length;
-            const done = tarefas.filter(t => t.concluida).length;
+            const tarefasDoProjeto = atividades.flatMap(a => (a.tarefas || []).map(t => ({ ...t, atividadeId: a.id })));
+            const total = tarefasDoProjeto.length;
+            const done = tarefasDoProjeto.filter(t => t.concluida).length;
             document.getElementById('boardMeta').textContent = total + ' tarefa' + (total !== 1 ? 's' : '') +
-                (total ? ' · ' + done + ' concluída' + (done !== 1 ? 's' : '') : '');
+                (total ? ' · ' + done + ' concluída' + (done !== 1 ? 's' : '') : '') +
+                (projetoAtual.nivelAcesso ? ' · ' + projetoAtual.nivelAcesso : '');
+            renderMembros();
 
             const cols = document.getElementById('boardColumns');
             cols.innerHTML = '';
 
-            COLUNAS.forEach(col => {
-                const listTasks = tarefas.filter(col.match);
+            atividades.forEach(atividade => {
+                const listTasks = atividade.tarefas || [];
                 const colEl = document.createElement('div');
-                colEl.className = 'column ' + col.colClass;
-                colEl.dataset.columnId = col.id;
+                colEl.className = 'column col-open';
+                colEl.dataset.atividadeId = atividade.id;
 
                 const head = document.createElement('div');
                 head.className = 'column-header';
                 head.innerHTML = '<div class="column-title-row"><span class="col-dot"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
-                    col.titulo + '</span></div><span class="count">' + listTasks.length + '</span>';
+                    escapeHtml(atividade.titulo || 'Atividade') + '</span></div><span class="count">' + listTasks.length + '</span>';
+                head.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    excluirAtividade(atividade.id);
+                };
                 colEl.appendChild(head);
 
                 const body = document.createElement('div');
                 body.className = 'column-body';
-                body.dataset.columnId = col.id;
+                body.dataset.atividadeId = atividade.id;
 
-                listTasks.forEach(t => body.appendChild(criarCard(t)));
+                listTasks.forEach(t => body.appendChild(criarCard(t, atividade.id)));
 
                 body.addEventListener('dragover', (e) => {
                     e.preventDefault();
@@ -909,18 +985,36 @@
                 body.addEventListener('drop', (e) => {
                     e.preventDefault();
                     body.classList.remove('drag-over');
-                    onDropTarefa(col.id);
+                    onDropTarefa(atividade.id);
                 });
 
                 const addBtn = document.createElement('button');
                 addBtn.type = 'button';
                 addBtn.className = 'add-card-btn';
                 addBtn.innerHTML = '+ Adicionar cartão';
-                addBtn.onclick = () => abrirModalNovaTarefa(col.id);
+                addBtn.onclick = () => abrirModalNovaTarefa(atividade.id);
 
                 colEl.appendChild(body);
                 colEl.appendChild(addBtn);
                 cols.appendChild(colEl);
+            });
+
+            if (!atividades.length) {
+                const emptyCol = document.createElement('div');
+                emptyCol.className = 'column col-open';
+                emptyCol.innerHTML = '<div class="column-header"><div class="column-title-row"><span class="col-dot"></span><span>Sem atividades</span></div><span class="count">0</span></div><div class="column-body"><p class="sidebar-hint" style="color:#64748b">Crie uma atividade para começar a adicionar tarefas.</p></div>';
+                cols.appendChild(emptyCol);
+            }
+        }
+
+        function renderMembros() {
+            const box = document.getElementById('projectMembers');
+            box.innerHTML = '';
+            membros.forEach(m => {
+                const chip = document.createElement('span');
+                chip.className = 'member-chip';
+                chip.textContent = (m.nome || m.email) + ' · ' + m.nivelAcesso;
+                box.appendChild(chip);
             });
         }
 
@@ -931,22 +1025,25 @@
             return { text: 'Baixa', cls: 'prio-baixa', badge: 'prio-baixa badge-fill' };
         }
 
-        function criarCard(t) {
+        function criarCard(t, atividadeId) {
             const div = document.createElement('div');
             const pl = prioLabel(t.prioridade);
             div.className = 'card-task ' + pl.cls;
             div.draggable = true;
             div.dataset.tarefaId = t.id;
+            div.dataset.atividadeId = atividadeId;
             const descPrev = (t.descricao || '').trim().slice(0, 120);
             div.innerHTML =
                 '<div class="card-actions">' +
                 '<button type="button" class="btn-icon" data-del="' + t.id + '" title="Excluir">✕</button></div>' +
                 '<span class="prio-badge ' + pl.badge + '">' + pl.text + '</span>' +
+                (t.concluida ? '<span class="prio-badge prio-baixa badge-fill">Concluída</span>' : '') +
                 '<div class="title">' + escapeHtml(t.titulo || '') + '</div>' +
                 (descPrev ? '<div class="desc-preview">' + escapeHtml(descPrev) + (t.descricao && t.descricao.length > 120 ? '…' : '') + '</div>' : '');
 
             div.addEventListener('dragstart', () => {
                 draggedTarefaId = t.id;
+                draggedAtividadeId = atividadeId;
                 div.style.opacity = '0.55';
                 div.style.transform = 'rotate(2deg)';
             });
@@ -954,15 +1051,16 @@
                 div.style.opacity = '1';
                 div.style.transform = '';
                 draggedTarefaId = null;
+                draggedAtividadeId = null;
                 document.querySelectorAll('.column-body.drag-over').forEach(el => el.classList.remove('drag-over'));
             });
             div.addEventListener('click', (e) => {
                 if (e.target.closest('.btn-icon')) return;
-                abrirModalEditarTarefa(t.id);
+                abrirModalEditarTarefa(atividadeId, t.id);
             });
             div.querySelector('[data-del]').addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (confirm('Excluir esta tarefa?')) excluirTarefa(t.id);
+                if (confirm('Excluir esta tarefa?')) excluirTarefa(atividadeId, t.id);
             });
             return div;
         }
@@ -973,60 +1071,53 @@
             return d.innerHTML;
         }
 
-        function tarefaPayloadFromColumn(colId, base) {
+        function tarefaPayload(base) {
             const titulo = base.titulo;
             const descricao = base.descricao;
             const dataCriacao = base.dataCriacao || new Date().toISOString();
-            if (colId === 'concluidas') {
-                return {
-                    titulo,
-                    descricao,
-                    concluida: true,
-                    dataCriacao,
-                    dataConclusao: base.dataConclusao || new Date().toISOString(),
-                    prioridade: normPrio(base.prioridade)
-                };
-            }
             return {
                 titulo,
                 descricao,
-                concluida: false,
+                concluida: !!base.concluida,
                 dataCriacao,
-                dataConclusao: null,
+                dataConclusao: base.concluida ? (base.dataConclusao || new Date().toISOString()) : null,
                 prioridade: normPrio(base.prioridade)
             };
         }
 
-        async function onDropTarefa(targetColumnId) {
+        async function onDropTarefa(targetAtividadeId) {
             if (!draggedTarefaId || !projetoAtual) return;
-            const t = tarefas.find(x => x.id === draggedTarefaId);
+            const origem = atividades.find(a => a.id === draggedAtividadeId);
+            const t = origem && (origem.tarefas || []).find(x => x.id === draggedTarefaId);
             if (!t) return;
-            const payload = tarefaPayloadFromColumn(targetColumnId, t);
+            const payload = tarefaPayload(t);
             try {
                 await handleRes(
-                    await API.atualizarTarefa(projetoAtual.id, draggedTarefaId, payload)
+                    await API.atualizarTarefa(projetoAtual.id, targetAtividadeId, draggedTarefaId, payload)
                 );
-                await carregarTarefas(projetoAtual.id);
+                await carregarBoardProjeto(projetoAtual.id);
             } catch (e) {
                 toast(e.message, true);
             }
         }
 
-        function abrirModalNovaTarefa(columnId) {
-            defaultColumnForNew = columnId;
+        function abrirModalNovaTarefa(atividadeId) {
+            atividadeAtualParaNovaTarefa = atividadeId;
             document.getElementById('tarefaId').value = '';
             document.getElementById('modalTarefaTitle').textContent = 'Nova tarefa';
             document.getElementById('tarefaTitulo').value = '';
             document.getElementById('tarefaDescricao').value = '';
-            document.getElementById('tarefaConcluida').checked = columnId === 'concluidas';
+            document.getElementById('tarefaConcluida').checked = false;
             const sel = document.getElementById('tarefaPrioridade');
             sel.value = '1';
             document.getElementById('btnExcluirTarefa').style.display = 'none';
             modalTarefaBootstrap.show();
         }
 
-        function abrirModalEditarTarefa(id) {
-            const t = tarefas.find(x => x.id === id);
+        function abrirModalEditarTarefa(atividadeId, id) {
+            atividadeAtualParaNovaTarefa = atividadeId;
+            const atividade = atividades.find(a => a.id === atividadeId);
+            const t = atividade && (atividade.tarefas || []).find(x => x.id === id);
             if (!t) return;
             document.getElementById('tarefaId').value = t.id;
             document.getElementById('modalTarefaTitle').textContent = 'Editar tarefa';
@@ -1061,31 +1152,28 @@
 
             try {
                 if (idField) {
-                    const existente = tarefas.find(x => x.id === parseInt(idField, 10));
+                    const atividade = atividades.find(a => a.id === atividadeAtualParaNovaTarefa);
+                    const existente = atividade && (atividade.tarefas || []).find(x => x.id === parseInt(idField, 10));
                     body.dataCriacao = existente && existente.dataCriacao ? existente.dataCriacao : baseDate;
                     if (concluida && existente && existente.dataConclusao) {
                         body.dataConclusao = existente.dataConclusao;
                     }
-                    await handleRes(await API.atualizarTarefa(projetoAtual.id, parseInt(idField, 10), body));
+                    await handleRes(await API.atualizarTarefa(projetoAtual.id, atividadeAtualParaNovaTarefa, parseInt(idField, 10), body));
                 } else {
-                    if (defaultColumnForNew === 'concluidas') {
-                        body.concluida = true;
-                        body.dataConclusao = new Date().toISOString();
-                    }
-                    await handleRes(await API.criarTarefa(projetoAtual.id, body), 'Tarefa criada.');
+                    await handleRes(await API.criarTarefa(projetoAtual.id, atividadeAtualParaNovaTarefa, body), 'Tarefa criada.');
                 }
                 modalTarefaBootstrap.hide();
-                await carregarTarefas(projetoAtual.id);
+                await carregarBoardProjeto(projetoAtual.id);
             } catch (e) {
                 toast(e.message, true);
             }
         }
 
-        async function excluirTarefa(id) {
+        async function excluirTarefa(atividadeId, id) {
             try {
-                await handleRes(await API.deletarTarefa(projetoAtual.id, id));
+                await handleRes(await API.deletarTarefa(projetoAtual.id, atividadeId, id));
                 modalTarefaBootstrap.hide();
-                await carregarTarefas(projetoAtual.id);
+                await carregarBoardProjeto(projetoAtual.id);
             } catch (e) {
                 toast(e.message, true);
             }
@@ -1096,10 +1184,61 @@
                 await handleRes(await API.deletarProjeto(id));
                 if (projetoAtual && projetoAtual.id === id) {
                     projetoAtual = null;
-                    tarefas = [];
+                    atividades = [];
+                    membros = [];
                 }
                 await carregarProjetos();
                 toast('Projeto removido.');
+            } catch (e) {
+                toast(e.message, true);
+            }
+        }
+
+        async function criarAtividade() {
+            if (!projetoAtual) return;
+            const titulo = prompt('Nome da atividade');
+            if (!titulo || !titulo.trim()) return;
+
+            const descricao = prompt('Descrição da atividade') || null;
+
+            try {
+                await handleRes(await API.criarAtividade(projetoAtual.id, {
+                    titulo: titulo.trim(),
+                    descricao
+                }), 'Atividade criada.');
+                await carregarBoardProjeto(projetoAtual.id);
+            } catch (e) {
+                toast(e.message, true);
+            }
+        }
+
+        async function excluirAtividade(id) {
+            if (!projetoAtual) return;
+            if (!confirm('Excluir esta atividade e todas as tarefas dela?')) return;
+
+            try {
+                await handleRes(await API.deletarAtividade(projetoAtual.id, id));
+                await carregarBoardProjeto(projetoAtual.id);
+                toast('Atividade removida.');
+            } catch (e) {
+                toast(e.message, true);
+            }
+        }
+
+        async function compartilharProjeto() {
+            if (!projetoAtual) return;
+            const email = prompt('Email do usuário');
+            if (!email || !email.trim()) return;
+
+            const nivelTexto = (prompt('Nível de acesso: Adm, Observador ou Ajudante') || 'Observador').trim().toLowerCase();
+            const nivelAcesso = nivelTexto === 'adm' ? 0 : nivelTexto === 'ajudante' ? 2 : 1;
+
+            try {
+                await handleRes(await API.compartilharProjeto(projetoAtual.id, {
+                    email: email.trim(),
+                    nivelAcesso
+                }), 'Projeto compartilhado.');
+                await carregarBoardProjeto(projetoAtual.id);
             } catch (e) {
                 toast(e.message, true);
             }
@@ -1109,6 +1248,9 @@
             document.getElementById('inputProjetoDesc').value = '';
             modalProjetoBootstrap.show();
         });
+
+        document.getElementById('btnNovaAtividade').addEventListener('click', criarAtividade);
+        document.getElementById('btnCompartilhar').addEventListener('click', compartilharProjeto);
 
         document.getElementById('btnSalvarProjeto').addEventListener('click', async () => {
             const desc = document.getElementById('inputProjetoDesc').value.trim();
@@ -1122,7 +1264,7 @@
                 projetos.push(created);
                 projetoAtual = created;
                 renderListaProjetos();
-                await carregarTarefas(created.id);
+                await carregarBoardProjeto(created.id);
             } catch (e) {
                 toast(e.message, true);
             }
@@ -1131,7 +1273,9 @@
         document.getElementById('btnSalvarTarefa').addEventListener('click', salvarTarefaModal);
         document.getElementById('btnExcluirTarefa').addEventListener('click', () => {
             const id = parseInt(document.getElementById('tarefaId').value, 10);
-            if (id && confirm('Excluir esta tarefa?')) excluirTarefa(id);
+            if (id && atividadeAtualParaNovaTarefa && confirm('Excluir esta tarefa?')) {
+                excluirTarefa(atividadeAtualParaNovaTarefa, id);
+            }
         });
 
         document.addEventListener('DOMContentLoaded', () => {

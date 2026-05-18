@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sprint3.DTOs;
-using Sprint3.Services;
+using Sprint3.Services.Interfaces;
 using System.Security.Claims;
 
 namespace Sprint3.Controllers
@@ -77,6 +77,48 @@ namespace Sprint3.Controllers
                 {
                     message = ex.Message
                 });
+            }
+        }
+
+        [Authorize]
+        [HttpPost("{projetoId}/acessos")]
+        public async Task<IActionResult> CompartilharProjeto(int projetoId, [FromBody] ProjetoAcessoInput input)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int usuarioId = int.Parse(userIdClaim.Value);
+
+            try
+            {
+                var membro = await _projetoService.CompartilharProjeto(projetoId, usuarioId, input);
+                return Ok(membro);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("{projetoId}/membros")]
+        public async Task<IActionResult> ListarMembros(int projetoId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int usuarioId = int.Parse(userIdClaim.Value);
+
+            try
+            {
+                var membros = await _projetoService.ListarMembros(projetoId, usuarioId);
+                return Ok(membros);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

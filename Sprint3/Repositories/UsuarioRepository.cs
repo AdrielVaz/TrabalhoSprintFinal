@@ -1,8 +1,7 @@
-﻿using Sprint3.Data;
-using Sprint3.Models;
 using Microsoft.EntityFrameworkCore;
-
-
+using Sprint3.Data;
+using Sprint3.Models;
+using Sprint3.Repositories.Interfaces;
 
 namespace Sprint3.Repositories
 {

@@ -19,6 +19,8 @@ namespace Sprint3.Models
         [ForeignKey(nameof(UsuarioId))]
         public Usuario Usuario { get; set; } = null!;
 
-        public List<Tarefa> Tarefas { get; set; } = new();
+        public List<Atividade> Atividades { get; set; } = new();
+
+        public List<ProjetoAcesso> Acessos { get; set; } = new();
     }
 }

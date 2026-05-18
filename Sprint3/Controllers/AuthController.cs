@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Sprint3.Data;
 using Sprint3.DTOs;
 using Sprint3.Models;
-using Sprint3.Repositories;
+using Sprint3.Repositories.Interfaces;
 using Sprint3.Security;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -64,10 +64,11 @@ namespace Sprint3.Controllers
 
             var claims = new[]
             {
-        new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
-        new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
-        new Claim("name", usuario.Nome)
-    };
+                new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+                new Claim("name", usuario.Nome)
+            };
             var jwtSettings = _configuration.GetSection("Jwt");
 
             var signingKey = new SymmetricSecurityKey(

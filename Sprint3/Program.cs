@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Sprint3.Data;
 using Sprint3.Repositories;
+using Sprint3.Repositories.Interfaces;
 using Sprint3.Services;
+using Sprint3.Services.Interfaces;
 using System.Text;
 
 
@@ -17,6 +19,9 @@ builder.Services.AddScoped<ITarefaService, TarefaService>();
 builder.Services.AddScoped<ITarefaRepository, TarefaRepository>();
 builder.Services.AddScoped<IProjetoRepository, ProjetoRepository>();
 builder.Services.AddScoped<IProjetoService, ProjetoService>();
+builder.Services.AddScoped<IAtividadeService, AtividadeService>();
+builder.Services.AddScoped<IAtividadeRepository, AtividadeRepository>();
+builder.Services.AddScoped<IProjetoAcessoRepository, ProjetoAcessoRepository>();
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"];
 

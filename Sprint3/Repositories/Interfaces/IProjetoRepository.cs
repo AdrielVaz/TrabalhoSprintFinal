@@ -1,6 +1,6 @@
-﻿using Sprint3.Models;
+using Sprint3.Models;
 
-namespace Sprint3.Repositories
+namespace Sprint3.Repositories.Interfaces
 {
     public interface IProjetoRepository
     {

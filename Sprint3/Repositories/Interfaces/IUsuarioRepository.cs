@@ -1,11 +1,11 @@
-﻿using Sprint3.Models;
+using Sprint3.Models;
 
-namespace Sprint3.Repositories
+namespace Sprint3.Repositories.Interfaces
 {
     public interface IUsuarioRepository
     {
         Task<Usuario?> ObterPorEmail(string email);
         Task<bool> EmailExiste(string email);
-        Task <Usuario> Criar(Usuario usuario);
+        Task<Usuario> Criar(Usuario usuario);
     }
 }

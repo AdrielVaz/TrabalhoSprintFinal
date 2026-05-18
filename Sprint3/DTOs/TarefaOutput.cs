@@ -1,4 +1,4 @@
-﻿using Sprint3.Models;
+using Sprint3.Models;
 
 namespace Sprint3.DTOs
 {
@@ -6,7 +6,7 @@ namespace Sprint3.DTOs
     {
         public int Id { get; set; }
 
-        public int ProjetoId { get; set; }
+        public int AtividadeId { get; set; }
 
         public string Titulo { get; set; } = string.Empty;
 

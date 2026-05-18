@@ -7,10 +7,10 @@ namespace Sprint3.Models
     {
         public int Id { get; set; }
 
-        public int ProjetoId { get; set; }
+        public int AtividadeId { get; set; }
 
-        [ForeignKey(nameof(ProjetoId))]
-        public Projeto Projeto { get; set; } = null!;
+        [ForeignKey(nameof(AtividadeId))]
+        public Atividade Atividade { get; set; } = null!;
 
         [Required]
         public string Titulo { get; set; } = string.Empty;
