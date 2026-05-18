@@ -1,0 +1,16 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Sprint3.Models
+{
+    public class Usuarios
+    {
+        protected int id;
+        [Required]
+        protected string Nome ;
+        [Required]
+        protected string email;
+        [Required]
+        protected string hashsenha;
+
+    }
+}

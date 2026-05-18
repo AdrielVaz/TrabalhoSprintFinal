@@ -1,0 +1,7 @@
+wwwroot\Assets\ChatGPT Image 6 de mai. de 2026, 11_17_50.png
+wwwroot\index.html
+wwwroot\MainScreenComponent\MainScreen.html
+wwwroot\CadastroComponent\Cadastro.html
+C:\Users\232.933623\Documents\Sprint3\Sprint3\wwwroot\index.html
+C:\Users\232.933623\Documents\Sprint3\Sprint3\wwwroot\MainScreenComponent\MainScreen.html
+C:\Users\232.933623\Documents\Sprint3\Sprint3\wwwroot\CadastroComponent\Cadastro.html

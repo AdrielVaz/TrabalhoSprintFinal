@@ -1,0 +1,8 @@
+wwwroot\CadastroComponent\Cadastro.html
+wwwroot\index.css
+wwwroot\index.html
+wwwroot\index.js
+C:\Users\232.933623\Documents\Sprint3\Sprint3\wwwroot\CadastroComponent\Cadastro.html
+C:\Users\232.933623\Documents\Sprint3\Sprint3\wwwroot\index.css
+C:\Users\232.933623\Documents\Sprint3\Sprint3\wwwroot\index.html
+C:\Users\232.933623\Documents\Sprint3\Sprint3\wwwroot\index.js
