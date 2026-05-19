@@ -99,6 +99,10 @@
         p {
             color: black
         }
+        .text-successful{
+            color: green;
+            
+        }
 
         @media (max-width: 480px) {
             body {
@@ -396,15 +400,15 @@
             };
 
             try {
-                await registerUser(userData);
-                showMessage('success', 'Cadastro realizado. Verifique seu email para confirmar a conta.');
+                const payload = await registerUser(userData);
+                showMessage('success', payload.message || ('Cadastro realizado. Confirme sua conta na caixa de entrada de ' + email + '.'));
 
                 document.getElementById('registerForm').reset();
                 updatePasswordStrength();
 
                 setTimeout(() => {
                     window.location.href = '/';
-                }, 2500);
+                }, 4500);
             } catch (error) {
                 showMessage('error', error.message);
             } finally {

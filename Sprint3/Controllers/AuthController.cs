@@ -142,7 +142,7 @@ namespace Sprint3.Controllers
                 id = usuario.Id,
                 nome = usuario.Nome,
                 email = usuario.Email,
-                message = "Cadastro realizado. Verifique seu email para confirmar a conta."
+                message = $"Cadastro realizado. Confirme sua conta na caixa de entrada de {usuario.Email}."
             });
         }
 
