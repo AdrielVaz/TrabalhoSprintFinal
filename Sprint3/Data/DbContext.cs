@@ -20,6 +20,8 @@ namespace Sprint3.Data
 
         public DbSet<ProjetoAcesso> ProjetoAcessos { get; set; }
 
+        public DbSet<ConviteProjeto> ConvitesProjeto { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ProjetoAcesso>()
@@ -40,6 +42,11 @@ namespace Sprint3.Data
                 .HasOne(a => a.Projeto)
                 .WithMany(p => p.Atividades)
                 .HasForeignKey(a => a.ProjetoId);
+
+            modelBuilder.Entity<ConviteProjeto>()
+                .HasOne(c => c.Projeto)
+                .WithMany(p => p.Convites)
+                .HasForeignKey(c => c.ProjetoId);
 
             modelBuilder.Entity<Tarefa>()
                 .HasOne(t => t.Atividade)

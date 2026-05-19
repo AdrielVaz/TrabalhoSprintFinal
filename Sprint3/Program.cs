@@ -22,6 +22,7 @@ builder.Services.AddScoped<IProjetoService, ProjetoService>();
 builder.Services.AddScoped<IAtividadeService, AtividadeService>();
 builder.Services.AddScoped<IAtividadeRepository, AtividadeRepository>();
 builder.Services.AddScoped<IProjetoAcessoRepository, ProjetoAcessoRepository>();
+builder.Services.AddScoped<IProjetoConviteRepository, ProjetoConviteRepository>();
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"];
 

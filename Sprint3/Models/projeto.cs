@@ -22,5 +22,7 @@ namespace Sprint3.Models
         public List<Atividade> Atividades { get; set; } = new();
 
         public List<ProjetoAcesso> Acessos { get; set; } = new();
+
+        public List<ConviteProjeto> Convites { get; set; } = new();
     }
 }

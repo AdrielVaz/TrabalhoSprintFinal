@@ -247,7 +247,8 @@
                     throw new Error(payload.message || 'Falha no login.');
                 }
 
-                showMessage('success', 'Login realizado com sucesso!');
+                showMessage('success', 'Login realizado com sucesso!');   
+                localStorage.setItem('convitesPendentes', JSON.stringify(payload.convitesPendentes || []));
 
                 if (remember) {
                     localStorage.setItem('rememberedEmail', email);

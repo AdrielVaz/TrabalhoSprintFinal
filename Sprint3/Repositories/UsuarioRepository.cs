@@ -26,6 +26,11 @@ namespace Sprint3.Repositories
                 .AnyAsync(u => u.Email.ToLower() == email);
         }
 
+        public async Task<Usuario?> ObterPorId(int id)
+        {
+            return await _db.Usuarios.FindAsync(id);
+        }
+
         public async Task<Usuario> Criar(Usuario usuario)
         {
             _db.Usuarios.Add(usuario);

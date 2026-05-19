@@ -45,6 +45,41 @@ namespace Sprint3.Migrations
                     b.ToTable("Atividades");
                 });
 
+            modelBuilder.Entity("Sprint3.Models.ConviteProjeto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("ConvidadoPorUsuarioId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("DataResposta")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("NivelAcesso")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjetoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjetoId");
+
+                    b.ToTable("ConvitesProjeto");
+                });
+
             modelBuilder.Entity("Sprint3.Models.Projeto", b =>
                 {
                     b.Property<int>("Id")
@@ -165,6 +200,17 @@ namespace Sprint3.Migrations
                     b.Navigation("Projeto");
                 });
 
+            modelBuilder.Entity("Sprint3.Models.ConviteProjeto", b =>
+                {
+                    b.HasOne("Sprint3.Models.Projeto", "Projeto")
+                        .WithMany("Convites")
+                        .HasForeignKey("ProjetoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Projeto");
+                });
+
             modelBuilder.Entity("Sprint3.Models.Projeto", b =>
                 {
                     b.HasOne("Sprint3.Models.Usuario", "Usuario")
@@ -216,6 +262,8 @@ namespace Sprint3.Migrations
                     b.Navigation("Acessos");
 
                     b.Navigation("Atividades");
+
+                    b.Navigation("Convites");
                 });
 
             modelBuilder.Entity("Sprint3.Models.Usuario", b =>

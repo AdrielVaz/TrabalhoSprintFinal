@@ -121,5 +121,59 @@ namespace Sprint3.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [Authorize]
+        [HttpGet("convites/pendentes")]
+        public async Task<IActionResult> ListarConvitesPendentes()
+        {
+            var email =
+                User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email)?.Value ??
+                User.FindFirst(ClaimTypes.Email)?.Value ??
+                User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+
+            if (string.IsNullOrWhiteSpace(email))
+                return Unauthorized();
+
+            var convites = await _projetoService.ListarConvitesPendentes(email);
+            return Ok(convites);
+        }
+
+        [Authorize]
+        [HttpPost("convites/{conviteId}/aceitar")]
+        public async Task<IActionResult> AceitarConvite(int conviteId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            try
+            {
+                var membro = await _projetoService.AceitarConvite(conviteId, int.Parse(userIdClaim.Value));
+                return Ok(membro);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPost("convites/{conviteId}/recusar")]
+        public async Task<IActionResult> RecusarConvite(int conviteId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            try
+            {
+                var convite = await _projetoService.RecusarConvite(conviteId, int.Parse(userIdClaim.Value));
+                return Ok(convite);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

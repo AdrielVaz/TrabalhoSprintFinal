@@ -12,17 +12,20 @@ namespace Sprint3.Services
         private readonly AppDbContext _context;
         private readonly IProjetoRepository _projetoRepository;
         private readonly IProjetoAcessoRepository _acessoRepository;
+        private readonly IProjetoConviteRepository _conviteRepository;
         private readonly IUsuarioRepository _usuarioRepository;
 
         public ProjetoService(
             AppDbContext context,
             IProjetoRepository projetoRepository,
             IProjetoAcessoRepository acessoRepository,
+            IProjetoConviteRepository conviteRepository,
             IUsuarioRepository usuarioRepository)
         {
             _context = context;
             _projetoRepository = projetoRepository;
             _acessoRepository = acessoRepository;
+            _conviteRepository = conviteRepository;
             _usuarioRepository = usuarioRepository;
         }
 
@@ -76,34 +79,45 @@ namespace Sprint3.Services
             return MapProjeto(projetoDeletado, nivelAcesso);
         }
 
-        public async Task<ProjetoMembroOutput> CompartilharProjeto(int projetoId, int usuarioId, ProjetoAcessoInput input)
+        public async Task<ConviteProjetoOutput> CompartilharProjeto(int projetoId, int usuarioId, ProjetoAcessoInput input)
         {
             var projeto = await _projetoRepository.ObterPorId(projetoId);
             var nivelAcesso = ObterNivelDoProjeto(projeto, usuarioId);
 
             if (nivelAcesso != NivelAcessoProjeto.Adm)
-                throw new Exception("Apenas administradores podem compartilhar o projeto");
+                throw new Exception("Apenas administradores podem convidar pessoas");
 
             var email = input.Email.Trim().ToLowerInvariant();
-            var usuario = await _usuarioRepository.ObterPorEmail(email);
+            if (string.IsNullOrWhiteSpace(email))
+                throw new Exception("Email é obrigatório");
 
-            if (usuario == null)
-                throw new Exception("Usuário não encontrado");
+            var usuarioConvite = await _usuarioRepository.ObterPorEmail(email);
+            if (usuarioConvite != null && usuarioConvite.Id == projeto.UsuarioId)
+                throw new Exception("O administrador do projeto já possui acesso e não pode ser convidado");
 
-            var acesso = await _acessoRepository.Salvar(new ProjetoAcesso
+            if (usuarioConvite != null && projeto.Acessos.Any(a => a.UsuarioId == usuarioConvite.Id))
+                throw new Exception("Este usuário já participa do projeto");
+
+            var conviteExistente = await _conviteRepository.ObterPendente(projetoId, email);
+            if (conviteExistente != null)
+            {
+                conviteExistente.NivelAcesso = input.NivelAcesso;
+                return MapConvite(await _conviteRepository.Salvar(conviteExistente));
+            }
+
+            var convite = await _conviteRepository.Salvar(new ConviteProjeto
             {
                 ProjetoId = projetoId,
-                UsuarioId = usuario.Id,
-                NivelAcesso = input.NivelAcesso
+                Email = email,
+                NivelAcesso = input.NivelAcesso,
+                ConvidadoPorUsuarioId = usuarioId,
+                Status = ConviteProjetoStatus.Pendente,
+                DataCriacao = DateTime.Now
             });
 
-            return new ProjetoMembroOutput
-            {
-                UsuarioId = usuario.Id,
-                Nome = usuario.Nome,
-                Email = usuario.Email,
-                NivelAcesso = acesso.NivelAcesso.ToString()
-            };
+            convite.Projeto = projeto;
+
+            return MapConvite(convite);
         }
 
         public async Task<List<ProjetoMembroOutput>> ListarMembros(int projetoId, int usuarioId)
@@ -135,6 +149,64 @@ namespace Sprint3.Services
             return saida;
         }
 
+        public async Task<List<ConviteProjetoOutput>> ListarConvitesPendentes(string email)
+        {
+            var convites = await _conviteRepository.ListarPendentesPorEmail(email.Trim().ToLowerInvariant());
+            return convites.Select(MapConvite).ToList();
+        }
+
+        public async Task<ProjetoMembroOutput> AceitarConvite(int conviteId, int usuarioId)
+        {
+            var usuario = await _usuarioRepository.ObterPorId(usuarioId);
+            if (usuario == null)
+                throw new Exception("Usuário não encontrado");
+
+            var convite = await _conviteRepository.ObterPorId(conviteId);
+            if (convite == null || convite.Status != ConviteProjetoStatus.Pendente)
+                throw new Exception("Convite não encontrado");
+
+            if (convite.Email != usuario.Email.Trim().ToLowerInvariant())
+                throw new Exception("Este convite pertence a outro usuário");
+
+            var acesso = await _acessoRepository.Salvar(new ProjetoAcesso
+            {
+                ProjetoId = convite.ProjetoId,
+                UsuarioId = usuario.Id,
+                NivelAcesso = convite.NivelAcesso
+            });
+
+            convite.Status = ConviteProjetoStatus.Aceito;
+            convite.DataResposta = DateTime.Now;
+            await _conviteRepository.Salvar(convite);
+
+            return new ProjetoMembroOutput
+            {
+                UsuarioId = usuario.Id,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
+                NivelAcesso = acesso.NivelAcesso.ToString()
+            };
+        }
+
+        public async Task<ConviteProjetoOutput> RecusarConvite(int conviteId, int usuarioId)
+        {
+            var usuario = await _usuarioRepository.ObterPorId(usuarioId);
+            if (usuario == null)
+                throw new Exception("Usuário não encontrado");
+
+            var convite = await _conviteRepository.ObterPorId(conviteId);
+            if (convite == null || convite.Status != ConviteProjetoStatus.Pendente)
+                throw new Exception("Convite não encontrado");
+
+            if (convite.Email != usuario.Email.Trim().ToLowerInvariant())
+                throw new Exception("Este convite pertence a outro usuário");
+
+            convite.Status = ConviteProjetoStatus.Recusado;
+            convite.DataResposta = DateTime.Now;
+
+            return MapConvite(await _conviteRepository.Salvar(convite));
+        }
+
         private static NivelAcessoProjeto ObterNivelDoProjeto(Projeto projeto, int usuarioId)
         {
             if (projeto.UsuarioId == usuarioId)
@@ -154,6 +226,20 @@ namespace Sprint3.Services
                 Id = projeto.Id,
                 Descricao = projeto.Descricao,
                 NivelAcesso = nivelAcesso.ToString()
+            };
+        }
+
+        private static ConviteProjetoOutput MapConvite(ConviteProjeto convite)
+        {
+            return new ConviteProjetoOutput
+            {
+                Id = convite.Id,
+                ProjetoId = convite.ProjetoId,
+                ProjetoDescricao = convite.Projeto?.Descricao ?? string.Empty,
+                Email = convite.Email,
+                NivelAcesso = convite.NivelAcesso.ToString(),
+                Status = convite.Status.ToString(),
+                DataCriacao = convite.DataCriacao
             };
         }
     }

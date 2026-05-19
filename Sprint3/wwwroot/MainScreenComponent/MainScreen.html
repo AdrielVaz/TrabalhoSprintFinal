@@ -106,6 +106,41 @@
                     border-color: rgba(255, 255, 255, 0.14);
                 }
 
+            .app-header .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 0.55rem;
+            }
+
+            .app-header .btn-notification {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.45rem;
+                padding: 0.45rem 0.75rem;
+                border-radius: 999px;
+                font-size: 0.82rem;
+                font-weight: 600;
+                color: var(--text);
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+                .app-header .btn-notification:hover {
+                    background: rgba(255, 255, 255, 0.12);
+                }
+
+        .notification-count {
+            min-width: 20px;
+            height: 20px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 999px;
+            background: #22d3ee;
+            color: #0c1222;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
         .layout {
             display: flex;
             height: calc(100vh - var(--header-h));
@@ -626,6 +661,89 @@
                 background: linear-gradient(135deg, #06b6d4, #4f46e5);
             }
 
+        .nivel-option {
+            cursor: pointer;
+        }
+
+        .nivel-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.75rem 0.5rem;
+            border-radius: var(--radius-md);
+            border: 2px solid rgba(15, 23, 42, 0.1);
+            background: #f8fafc;
+            text-align: center;
+            transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+        }
+
+        .nivel-option:hover .nivel-card {
+            border-color: rgba(34, 211, 238, 0.4);
+            background: rgba(34, 211, 238, 0.05);
+        }
+
+        .nivel-card.active,
+        .nivel-option input:checked + .nivel-card {
+            border-color: var(--accent);
+            background: rgba(34, 211, 238, 0.1);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+        }
+
+        .nivel-icon {
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        .nivel-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .nivel-desc {
+            font-size: 0.68rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .invite-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .invite-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.85rem;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: var(--radius-md);
+            background: #f8fafc;
+        }
+
+        .invite-title {
+            margin: 0;
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .invite-meta {
+            margin: 0.2rem 0 0;
+            color: #64748b;
+            font-size: 0.78rem;
+        }
+
+        .invite-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-shrink: 0;
+        }
+
         @media (max-width: 768px) {
             .layout {
                 flex-direction: column;
@@ -653,7 +771,12 @@
             <span class="brand">TASKPI</span>
             <span>Bem vindo: <span style="font-weight:bold" id="NameUser"></span></span>
         </div>
-        <a class="btn-leave" href="/index.html">← Sair</a>
+        <div class="header-actions">
+            <button type="button" class="btn-notification" id="btnConvites">
+                Convites <span class="notification-count" id="conviteCount">0</span>
+            </button>
+            <a class="btn-leave" href="/index.html">← Sair</a>
+        </div>
     </header>
     <div class="layout">
         <aside class="sidebar">
@@ -752,6 +875,98 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modalAtividade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova atividade</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Nome da atividade</label>
+                        <input type="text" class="form-control" id="inputAtividadeNome" placeholder="Ex.: Design, Backend, Testes…">
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label fw-semibold small text-secondary">Descrição <span class="fw-normal text-secondary">(opcional)</span></label>
+                        <textarea class="form-control" id="inputAtividadeDesc" rows="3" placeholder="Descreva o objetivo desta atividade…"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarAtividade">Criar atividade</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCompartilhar" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Compartilhar projeto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">E-mail do usuário</label>
+                        <input type="email" class="form-control" id="inputCompartilharEmail" placeholder="usuario@exemplo.com">
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label fw-semibold small text-secondary">Nível de acesso</label>
+                        <div class="d-flex gap-2 mt-2" id="nivelAcessoOptions">
+                            <label class="nivel-option flex-fill">
+                                <input type="radio" name="nivelAcesso" value="0" class="d-none">
+                                <div class="nivel-card">
+                                    <span class="nivel-icon">A</span>
+                                    <span class="nivel-label">Administrador</span>
+                                    <span class="nivel-desc">Acesso total</span>
+                                </div>
+                            </label>
+                            <label class="nivel-option flex-fill">
+                                <input type="radio" name="nivelAcesso" value="1" class="d-none" checked>
+                                <div class="nivel-card active">
+                                    <span class="nivel-icon">O</span>
+                                    <span class="nivel-label">Observador</span>
+                                    <span class="nivel-desc">Somente leitura</span>
+                                </div>
+                            </label>
+                            <label class="nivel-option flex-fill">
+                                <input type="radio" name="nivelAcesso" value="2" class="d-none">
+                                <div class="nivel-card">
+                                    <span class="nivel-icon">H</span>
+                                    <span class="nivel-label">Ajudante</span>
+                                    <span class="nivel-desc">Pode editar</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarCompartilhar">Enviar convite</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConvites" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Convites recebidos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="invite-list" id="conviteList"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"></script>
@@ -815,6 +1030,17 @@
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(body)
+            }),
+            listarConvites: () => fetch('/api/Projetos/convites/pendentes', {
+                credentials: 'include'
+            }),
+            aceitarConvite: (conviteId) => fetch(`/api/Projetos/convites/${conviteId}/aceitar`, {
+                method: 'POST',
+                credentials: 'include'
+            }),
+            recusarConvite: (conviteId) => fetch(`/api/Projetos/convites/${conviteId}/recusar`, {
+                method: 'POST',
+                credentials: 'include'
             })
             
         };
@@ -832,6 +1058,7 @@
         let projetoAtual = null;
         let atividades = [];
         let membros = [];
+        let convitesPendentes = [];
         let draggedTarefaId = null;
         let draggedAtividadeId = null;
         let modalTarefaBootstrap = null;
@@ -1196,20 +1423,20 @@
 
         async function criarAtividade() {
             if (!projetoAtual) return;
-            const titulo = prompt('Nome da atividade');
-            if (!titulo || !titulo.trim()) return;
+            document.getElementById('inputAtividadeNome').value = '';
+            document.getElementById('inputAtividadeDesc').value = '';
+            modalAtividadeBootstrap.show();
+        }
 
-            const descricao = prompt('Descrição da atividade') || null;
-
+        async function salvarAtividadeModal() {
+            const titulo = document.getElementById('inputAtividadeNome').value.trim();
+            if (!titulo) { toast('Informe o nome da atividade.', true); return; }
+            const descricao = document.getElementById('inputAtividadeDesc').value.trim() || null;
             try {
-                await handleRes(await API.criarAtividade(projetoAtual.id, {
-                    titulo: titulo.trim(),
-                    descricao
-                }), 'Atividade criada.');
+                await handleRes(await API.criarAtividade(projetoAtual.id, { titulo, descricao }), 'Atividade criada.');
+                modalAtividadeBootstrap.hide();
                 await carregarBoardProjeto(projetoAtual.id);
-            } catch (e) {
-                toast(e.message, true);
-            }
+            } catch (e) { toast(e.message, true); }
         }
 
         async function excluirAtividade(id) {
@@ -1227,18 +1454,81 @@
 
         async function compartilharProjeto() {
             if (!projetoAtual) return;
-            const email = prompt('Email do usuário');
-            if (!email || !email.trim()) return;
+            document.getElementById('inputCompartilharEmail').value = '';
+            document.querySelectorAll('[name="nivelAcesso"]').forEach(r => {
+                r.checked = r.value === '1';
+                r.nextElementSibling.classList.toggle('active', r.value === '1');
+            });
+            modalCompartilharBootstrap.show();
+        }
 
-            const nivelTexto = (prompt('Nível de acesso: Adm, Observador ou Ajudante') || 'Observador').trim().toLowerCase();
-            const nivelAcesso = nivelTexto === 'adm' ? 0 : nivelTexto === 'ajudante' ? 2 : 1;
-
+        async function confirmarCompartilhar() {
+            const email = document.getElementById('inputCompartilharEmail').value.trim();
+            if (!email) { toast('Informe o e-mail do usuário.', true); return; }
+            const nivelAcesso = parseInt(document.querySelector('[name="nivelAcesso"]:checked').value, 10);
             try {
-                await handleRes(await API.compartilharProjeto(projetoAtual.id, {
-                    email: email.trim(),
-                    nivelAcesso
-                }), 'Projeto compartilhado.');
-                await carregarBoardProjeto(projetoAtual.id);
+                await handleRes(await API.compartilharProjeto(projetoAtual.id, { email, nivelAcesso }), 'Convite enviado.');
+                modalCompartilharBootstrap.hide();
+            } catch (e) { toast(e.message, true); }
+        }
+
+        async function carregarConvitesPendentes() {
+            try {
+                const salvos = JSON.parse(localStorage.getItem('convitesPendentes') || '[]');
+                convitesPendentes = salvos.length ? salvos : await handleRes(await API.listarConvites());
+                localStorage.setItem('convitesPendentes', JSON.stringify(convitesPendentes));
+            } catch {
+                convitesPendentes = [];
+            }
+
+            renderConvites();
+        }
+
+        function renderConvites() {
+            const count = document.getElementById('conviteCount');
+            const list = document.getElementById('conviteList');
+            count.textContent = convitesPendentes.length;
+            list.innerHTML = '';
+
+            if (!convitesPendentes.length) {
+                list.innerHTML = '<p class="invite-meta mb-0">Nenhum convite pendente.</p>';
+                return;
+            }
+
+            convitesPendentes.forEach(convite => {
+                const projeto = convite.projetoDescricao || ('Projeto #' + convite.projetoId);
+                const item = document.createElement('div');
+                item.className = 'invite-item';
+                item.innerHTML =
+                    '<div><p class="invite-title">' + escapeHtml(projeto) + '</p>' +
+                    '<p class="invite-meta">Acesso: ' + escapeHtml(convite.nivelAcesso || '') + '</p></div>' +
+                    '<div class="invite-actions">' +
+                    '<button type="button" class="btn btn-sm btn-primary" data-accept="' + convite.id + '">Aceitar</button>' +
+                    '<button type="button" class="btn btn-sm btn-outline-secondary" data-decline="' + convite.id + '">Recusar</button>' +
+                    '</div>';
+                list.appendChild(item);
+            });
+
+            list.querySelectorAll('[data-accept]').forEach(btn => {
+                btn.addEventListener('click', () => responderConvite(parseInt(btn.dataset.accept, 10), true));
+            });
+            list.querySelectorAll('[data-decline]').forEach(btn => {
+                btn.addEventListener('click', () => responderConvite(parseInt(btn.dataset.decline, 10), false));
+            });
+        }
+
+        async function responderConvite(conviteId, aceitou) {
+            try {
+                if (aceitou) {
+                    await handleRes(await API.aceitarConvite(conviteId), 'Convite aceito.');
+                } else {
+                    await handleRes(await API.recusarConvite(conviteId), 'Convite recusado.');
+                }
+
+                convitesPendentes = convitesPendentes.filter(c => c.id !== conviteId);
+                localStorage.setItem('convitesPendentes', JSON.stringify(convitesPendentes));
+                renderConvites();
+                await carregarProjetos();
             } catch (e) {
                 toast(e.message, true);
             }
@@ -1251,6 +1541,20 @@
 
         document.getElementById('btnNovaAtividade').addEventListener('click', criarAtividade);
         document.getElementById('btnCompartilhar').addEventListener('click', compartilharProjeto);
+        document.getElementById('btnConvites').addEventListener('click', () => {
+            renderConvites();
+            modalConvitesBootstrap.show();
+        });
+        document.getElementById('btnSalvarAtividade').addEventListener('click', salvarAtividadeModal);
+        document.getElementById('btnConfirmarCompartilhar').addEventListener('click', confirmarCompartilhar);
+
+        document.querySelectorAll('[name="nivelAcesso"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.querySelectorAll('[name="nivelAcesso"]').forEach(r => {
+                    r.nextElementSibling.classList.toggle('active', r.checked);
+                });
+            });
+        });
 
         document.getElementById('btnSalvarProjeto').addEventListener('click', async () => {
             const desc = document.getElementById('inputProjetoDesc').value.trim();
@@ -1278,10 +1582,19 @@
             }
         });
 
+        let modalAtividadeBootstrap = null;
+        let modalCompartilharBootstrap = null;
+        let modalConvitesBootstrap = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             modalTarefaBootstrap = new bootstrap.Modal(document.getElementById('modalTarefa'));
             modalProjetoBootstrap = new bootstrap.Modal(document.getElementById('modalProjeto'));
-            carregarProjetos().catch(e => toast(e.message, true));
+            modalAtividadeBootstrap = new bootstrap.Modal(document.getElementById('modalAtividade'));
+            modalCompartilharBootstrap = new bootstrap.Modal(document.getElementById('modalCompartilhar'));
+            modalConvitesBootstrap = new bootstrap.Modal(document.getElementById('modalConvites'));
+            carregarProjetos()
+                .then(carregarConvitesPendentes)
+                .catch(e => toast(e.message, true));
         });
         async function carregarUsuario() {
 

@@ -2154,11 +2154,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Alisson\\Downloads\\Sprint3\\sprint3\\Sprint3.csproj",
+      "projectUniqueName": "C:\\Users\\Alisson\\Downloads\\Sprint3\\Sprint3\\Sprint3.csproj",
       "projectName": "Sprint3",
-      "projectPath": "C:\\Users\\Alisson\\Downloads\\Sprint3\\sprint3\\Sprint3.csproj",
+      "projectPath": "C:\\Users\\Alisson\\Downloads\\Sprint3\\Sprint3\\Sprint3.csproj",
       "packagesPath": "C:\\Users\\Alisson\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Alisson\\Downloads\\Sprint3\\sprint3\\obj\\",
+      "outputPath": "C:\\Users\\Alisson\\Downloads\\Sprint3\\Sprint3\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Alisson\\AppData\\Roaming\\NuGet\\NuGet.Config"

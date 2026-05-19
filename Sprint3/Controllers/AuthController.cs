@@ -8,6 +8,7 @@ using Sprint3.DTOs;
 using Sprint3.Models;
 using Sprint3.Repositories.Interfaces;
 using Sprint3.Security;
+using Sprint3.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -30,12 +31,14 @@ namespace Sprint3.Controllers
 
         private readonly IUsuarioRepository _usuarioRepo;
         private readonly IConfiguration _configuration;
+        private readonly IProjetoService _projetoService;
 
 
-        public AuthController( IUsuarioRepository usuarioRepo, IConfiguration configuration)
+        public AuthController(IUsuarioRepository usuarioRepo, IConfiguration configuration, IProjetoService projetoService)
         {
             _usuarioRepo = usuarioRepo;
             _configuration = configuration;
+            _projetoService = projetoService;
         }
 
         [HttpPost("Login")]
@@ -67,6 +70,7 @@ namespace Sprint3.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+                new Claim(ClaimTypes.Email, usuario.Email),
                 new Claim("name", usuario.Nome)
             };
             var jwtSettings = _configuration.GetSection("Jwt");
@@ -98,7 +102,8 @@ namespace Sprint3.Controllers
             {
                 id = usuario.Id,
                 nome = usuario.Nome,
-                email = usuario.Email
+                email = usuario.Email,
+                convitesPendentes = await _projetoService.ListarConvitesPendentes(usuario.Email)
             });
             
         }
