@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Sprint3.Data;
 using Sprint3.DTOs;
 using Sprint3.Models;
 using Sprint3.Repositories.Interfaces;
@@ -11,7 +7,9 @@ using Sprint3.Security;
 using Sprint3.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Sprint3.Controllers
 {
@@ -19,6 +17,23 @@ namespace Sprint3.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly IUsuarioRepository _usuarioRepo;
+        private readonly IConfiguration _configuration;
+        private readonly IProjetoService _projetoService;
+        private readonly IEmailService _emailService;
+
+        public AuthController(
+            IUsuarioRepository usuarioRepo,
+            IConfiguration configuration,
+            IProjetoService projetoService,
+            IEmailService emailService)
+        {
+            _usuarioRepo = usuarioRepo;
+            _configuration = configuration;
+            _projetoService = projetoService;
+            _emailService = emailService;
+        }
+
         [HttpGet("debug")]
         public IActionResult Debug()
         {
@@ -27,18 +42,6 @@ namespace Sprint3.Controllers
                 autenticado = User.Identity?.IsAuthenticated,
                 claims = User.Claims.Select(c => new { c.Type, c.Value })
             });
-        }
-
-        private readonly IUsuarioRepository _usuarioRepo;
-        private readonly IConfiguration _configuration;
-        private readonly IProjetoService _projetoService;
-
-
-        public AuthController(IUsuarioRepository usuarioRepo, IConfiguration configuration, IProjetoService projetoService)
-        {
-            _usuarioRepo = usuarioRepo;
-            _configuration = configuration;
-            _projetoService = projetoService;
         }
 
         [HttpPost("Login")]
@@ -50,19 +53,16 @@ namespace Sprint3.Controllers
             }
 
             string email = input.Email.Trim().ToLowerInvariant();
-
             var usuario = await _usuarioRepo.ObterPorEmail(email);
 
-            if (usuario is null)
+            if (usuario is null || !PasswordHasher.Verify(input.Senha, usuario.HashSenha))
             {
                 return Unauthorized(new { message = "Credenciais invalidas." });
             }
 
-            bool senhaValida = PasswordHasher.Verify(input.Senha, usuario.HashSenha);
-
-            if (!senhaValida)
+            if (!usuario.EmailConfirmado)
             {
-                return Unauthorized(new { message = "Credenciais invalidas." });
+                return Unauthorized(new { message = "Confirme seu email antes de entrar." });
             }
 
             var claims = new[]
@@ -105,8 +105,8 @@ namespace Sprint3.Controllers
                 email = usuario.Email,
                 convitesPendentes = await _projetoService.ListarConvitesPendentes(usuario.Email)
             });
-            
         }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] CadastroInput input)
         {
@@ -119,8 +119,7 @@ namespace Sprint3.Controllers
 
             string email = input.Email.Trim().ToLowerInvariant();
 
-            bool exists = await _usuarioRepo.EmailExiste(email);
-            if (exists)
+            if (await _usuarioRepo.EmailExiste(email))
             {
                 return Conflict(new { message = "Email ja cadastrado." });
             }
@@ -129,17 +128,145 @@ namespace Sprint3.Controllers
             {
                 Nome = input.Nome.Trim(),
                 Email = email,
-                HashSenha = PasswordHasher.Hash(input.Senha)
+                HashSenha = PasswordHasher.Hash(input.Senha),
+                EmailConfirmado = false,
+                EmailConfirmacaoToken = GerarToken(),
+                EmailConfirmacaoExpiraEm = DateTime.UtcNow.AddHours(24)
             };
 
             await _usuarioRepo.Criar(usuario);
+            await EnviarConfirmacaoEmail(usuario);
 
             return CreatedAtAction(nameof(Register), new
             {
                 id = usuario.Id,
                 nome = usuario.Nome,
-                email = usuario.Email
+                email = usuario.Email,
+                message = "Cadastro realizado. Verifique seu email para confirmar a conta."
             });
         }
-   }
+
+        [HttpGet("confirmar-email")]
+        public async Task<IActionResult> ConfirmarEmail([FromQuery] string email, [FromQuery] string token)
+        {
+            var usuario = await _usuarioRepo.ObterPorEmail(email.Trim().ToLowerInvariant());
+
+            if (usuario == null ||
+                usuario.EmailConfirmacaoToken != token ||
+                usuario.EmailConfirmacaoExpiraEm < DateTime.UtcNow)
+            {
+                return BadRequest("Link de confirmacao invalido ou expirado.");
+            }
+
+            usuario.EmailConfirmado = true;
+            usuario.EmailConfirmacaoToken = null;
+            usuario.EmailConfirmacaoExpiraEm = null;
+            await _usuarioRepo.Atualizar(usuario);
+
+            return Content("<html><body style=\"font-family:Arial;text-align:center;padding:40px\"><h2>Email confirmado</h2><p>Sua conta foi confirmada. Voce ja pode fazer login.</p><a href=\"/\">Ir para login</a></body></html>", "text/html");
+        }
+
+        [HttpPost("reenviar-confirmacao")]
+        public async Task<IActionResult> ReenviarConfirmacao([FromBody] ReenviarConfirmacaoInput input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Email))
+                return BadRequest(new { message = "Email e obrigatorio." });
+
+            var usuario = await _usuarioRepo.ObterPorEmail(input.Email.Trim().ToLowerInvariant());
+
+            if (usuario == null || usuario.EmailConfirmado)
+            {
+                return Ok(new { message = "Se houver uma conta pendente, enviaremos um email de confirmacao." });
+            }
+
+            usuario.EmailConfirmacaoToken = GerarToken();
+            usuario.EmailConfirmacaoExpiraEm = DateTime.UtcNow.AddHours(24);
+            await _usuarioRepo.Atualizar(usuario);
+            await EnviarConfirmacaoEmail(usuario);
+
+            return Ok(new { message = "Se houver uma conta pendente, enviaremos um email de confirmacao." });
+        }
+
+        [HttpPost("esqueci-senha")]
+        public async Task<IActionResult> EsqueciSenha([FromBody] EsqueciSenhaInput input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Email))
+                return BadRequest(new { message = "Email e obrigatorio." });
+
+            var usuario = await _usuarioRepo.ObterPorEmail(input.Email.Trim().ToLowerInvariant());
+
+            if (usuario != null)
+            {
+                usuario.RedefinirSenhaToken = GerarToken();
+                usuario.RedefinirSenhaExpiraEm = DateTime.UtcNow.AddHours(1);
+                await _usuarioRepo.Atualizar(usuario);
+                await EnviarRedefinicaoSenha(usuario);
+            }
+
+            return Ok(new { message = "Se o email existir, enviaremos instrucoes para redefinir a senha." });
+        }
+
+        [HttpPost("redefinir-senha")]
+        public async Task<IActionResult> RedefinirSenha([FromBody] RedefinirSenhaInput input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Email) ||
+                string.IsNullOrWhiteSpace(input.Token) ||
+                string.IsNullOrWhiteSpace(input.NovaSenha))
+            {
+                return BadRequest(new { message = "Dados obrigatorios ausentes." });
+            }
+
+            if (input.NovaSenha.Length < 6)
+                return BadRequest(new { message = "A senha deve ter pelo menos 6 caracteres." });
+
+            var usuario = await _usuarioRepo.ObterPorEmail(input.Email.Trim().ToLowerInvariant());
+
+            if (usuario == null ||
+                usuario.RedefinirSenhaToken != input.Token ||
+                usuario.RedefinirSenhaExpiraEm < DateTime.UtcNow)
+            {
+                return BadRequest(new { message = "Link de redefinicao invalido ou expirado." });
+            }
+
+            usuario.HashSenha = PasswordHasher.Hash(input.NovaSenha);
+            usuario.RedefinirSenhaToken = null;
+            usuario.RedefinirSenhaExpiraEm = null;
+            await _usuarioRepo.Atualizar(usuario);
+
+            return Ok(new { message = "Senha alterada com sucesso." });
+        }
+
+        private async Task EnviarConfirmacaoEmail(Usuario usuario)
+        {
+            var link = GerarUrl("/api/Auth/confirmar-email", usuario.Email, usuario.EmailConfirmacaoToken!);
+            await _emailService.EnviarEmailAsync(
+                usuario.Email,
+                "Confirme sua conta TASKPI",
+                $"<p>Ola, {HtmlEncoder.Default.Encode(usuario.Nome)}.</p><p>Confirme sua conta pelo link abaixo:</p><p><a href=\"{link}\">Confirmar email</a></p>");
+        }
+
+        private async Task EnviarRedefinicaoSenha(Usuario usuario)
+        {
+            var link = GerarUrl("/redefinir-senha", usuario.Email, usuario.RedefinirSenhaToken!);
+            await _emailService.EnviarEmailAsync(
+                usuario.Email,
+                "Redefinicao de senha TASKPI",
+                $"<p>Ola, {HtmlEncoder.Default.Encode(usuario.Nome)}.</p><p>Use o link abaixo para redefinir sua senha:</p><p><a href=\"{link}\">Redefinir senha</a></p><p>Este link expira em 1 hora.</p>");
+        }
+
+        private string GerarUrl(string path, string email, string token)
+        {
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            return $"{baseUrl}{path}?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
+        }
+
+        private static string GerarToken()
+        {
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+                .Replace("+", "-")
+                .Replace("/", "_")
+                .Replace("=", "");
+        }
+    }
 }

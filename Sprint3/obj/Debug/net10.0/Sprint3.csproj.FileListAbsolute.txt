@@ -248,8 +248,6 @@ C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\Sprint3.pdb
 C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\Sprint3.genruntimeconfig.cache
 C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\ref\Sprint3.dll
 C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\Sprint3.sourcelink.json
-C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\compressed\hd1041fd6k-{0}-gxayp91e9r-gxayp91e9r.gz
-C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\2smqkv32eo-{0}-wmtym3sb46-wmtym3sb46.gz
 C:\Users\Alisson\Downloads\Sprint3\build-check\appsettings.Development.json
 C:\Users\Alisson\Downloads\Sprint3\build-check\appsettings.json
 C:\Users\Alisson\Downloads\Sprint3\build-check\Sprint3.staticwebassets.runtime.json
@@ -260,3 +258,7 @@ C:\Users\Alisson\Downloads\Sprint3\build-check\Sprint3.runtimeconfig.json
 C:\Users\Alisson\Downloads\Sprint3\build-check\Sprint3.dll
 C:\Users\Alisson\Downloads\Sprint3\build-check\Sprint3.pdb
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\95wks6dc5i-{0}-tdyqbv0q0c-tdyqbv0q0c.gz
+C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\4lnv8ka9qg-{0}-s877ngktnh-s877ngktnh.gz
+C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\h4jnnd5rq7-{0}-k486cqtkia-k486cqtkia.gz
+C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\hd1041fd6k-{0}-vuy0h81oau-vuy0h81oau.gz
+C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\2smqkv32eo-{0}-0ssgh96e4u-0ssgh96e4u.gz

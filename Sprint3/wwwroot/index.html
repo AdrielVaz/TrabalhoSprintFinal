@@ -29,7 +29,7 @@
         }
 
         body {
-            overflow: hidden;
+            overflow-x: hidden;
             margin: 0;
             min-height: 100vh;
             font-family: "Outfit", system-ui, sans-serif;
@@ -46,8 +46,8 @@
         .container {
             display: flex;
             flex-direction: column;
-            margin: 100px auto;
-            width: 400px;
+            margin: 80px auto;
+            width: min(400px, calc(100% - 32px));
             padding: 32px 40px;
             background: rgb(255, 255, 255);
             border-radius: 3px;
@@ -86,12 +86,43 @@
             display: none;
         }
 
+        .resend-confirmation {
+            display: none;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
         label {
             color: black
         }
 
         p {
             color: black
+        }
+
+        .auth-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                display: grid;
+                place-items: center;
+                padding: 18px 0;
+            }
+
+            .container {
+                margin: 0 auto;
+                padding: 24px 18px;
+            }
+
+            .img-icon {
+                width: 78px;
+            }
         }
     </style>
 </head>
@@ -106,6 +137,9 @@
 
         <div id="errorMessage" class="alert alert-danger"></div>
         <div id="successMessage" class="alert alert-success"></div>
+        <div id="resendConfirmation" class="resend-confirmation">
+            <button type="button" class="btn btn-link p-0" id="btnResendConfirmation">Reenviar confirmação de email</button>
+        </div>
 
         <form id="loginForm">
             <div class="mb-3">
@@ -151,8 +185,9 @@
             <button type="submit" class="btn btn-primary w-100">Entrar</button>
         </form>
 
-        <div class="register">
-            <p>Não tem uma conta? <a href="/cadastro">Registre-se</a></p>
+        <div class="auth-links">
+            <p class="mb-0">Não tem uma conta? <a href="/cadastro">Registre-se</a></p>
+            <p class="mb-0"><a href="/esqueci-senha">Esqueci minha senha</a></p>
         </div>
         <div class="brand-name">TASKPI</div>
     </div>
@@ -174,11 +209,13 @@
         function showMessage(type, message) {
             const errorDiv = document.getElementById('errorMessage');
             const successDiv = document.getElementById('successMessage');
+            const resendDiv = document.getElementById('resendConfirmation');
 
             if (type === 'error') {
                 errorDiv.textContent = message;
                 errorDiv.style.display = 'block';
                 successDiv.style.display = 'none';
+                resendDiv.style.display = message.toLowerCase().includes('confirme seu email') ? 'block' : 'none';
 
                 setTimeout(() => {
                     errorDiv.style.display = 'none';
@@ -187,6 +224,7 @@
                 successDiv.textContent = message;
                 successDiv.style.display = 'block';
                 errorDiv.style.display = 'none';
+                resendDiv.style.display = 'none';
             }
         }
 
@@ -267,6 +305,31 @@
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Entrar';
+            }
+        });
+
+        async function reenviarConfirmacao(email) {
+            const response = await fetch('/api/Auth/reenviar-confirmacao', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.message || 'Não foi possível reenviar a confirmação.');
+            showMessage('success', payload.message || 'Verifique seu email.');
+        }
+
+        document.getElementById('btnResendConfirmation').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                showMessage('error', 'Informe o email para reenviar a confirmação.');
+                return;
+            }
+
+            try {
+                await reenviarConfirmacao(email);
+            } catch (error) {
+                showMessage('error', error.message);
             }
         });
 

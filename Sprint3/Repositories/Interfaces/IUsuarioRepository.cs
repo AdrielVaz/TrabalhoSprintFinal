@@ -8,5 +8,6 @@ namespace Sprint3.Repositories.Interfaces
         Task<Usuario?> ObterPorId(int id);
         Task<bool> EmailExiste(string email);
         Task<Usuario> Criar(Usuario usuario);
+        Task<Usuario> Atualizar(Usuario usuario);
     }
 }

@@ -37,5 +37,12 @@ namespace Sprint3.Repositories
             await _db.SaveChangesAsync();
             return usuario;
         }
+
+        public async Task<Usuario> Atualizar(Usuario usuario)
+        {
+            _db.Usuarios.Update(usuario);
+            await _db.SaveChangesAsync();
+            return usuario;
+        }
     }
 }

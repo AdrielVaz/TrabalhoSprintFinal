@@ -17,6 +17,21 @@ namespace Sprint3.Controllers
         {
             return Redirect("/CadastroComponent/Cadastro.html");
         }
+
+        [HttpGet("/esqueci-senha")]
+        public IActionResult EsqueciSenha()
+        {
+            return Redirect("/AuthComponent/EsqueciSenha.html");
+        }
+
+        [HttpGet("/redefinir-senha")]
+        public IActionResult RedefinirSenha()
+        {
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "AuthComponent", "RedefinirSenha.html");
+            if (!System.IO.File.Exists(path)) return NotFound();
+            return PhysicalFile(path, "text/html");
+        }
+
         [Authorize]
         [HttpGet("/mainscreen")]
         public IActionResult MainScreen()

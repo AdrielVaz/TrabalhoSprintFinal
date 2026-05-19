@@ -13,6 +13,17 @@ namespace Sprint3.Models
 
         [Required]
         public string HashSenha { get; set; } = string.Empty;
+
+        public bool EmailConfirmado { get; set; }
+
+        public string? EmailConfirmacaoToken { get; set; }
+
+        public DateTime? EmailConfirmacaoExpiraEm { get; set; }
+
+        public string? RedefinirSenhaToken { get; set; }
+
+        public DateTime? RedefinirSenhaExpiraEm { get; set; }
+
         [Required]
         public List<Projeto> Projetos { get; set; } = new List<Projeto>();
 

@@ -11,8 +11,8 @@ using Sprint3.Data;
 namespace Sprint3.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260519172937_newTable")]
-    partial class newTable
+    [Migration("20260519181752_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -179,12 +179,27 @@ namespace Sprint3.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime?>("EmailConfirmacaoExpiraEm")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("EmailConfirmacaoToken")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("EmailConfirmado")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("HashSenha")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Nome")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("RedefinirSenhaExpiraEm")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("RedefinirSenhaToken")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
