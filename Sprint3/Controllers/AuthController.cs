@@ -103,6 +103,7 @@ namespace Sprint3.Controllers
                 id = usuario.Id,
                 nome = usuario.Nome,
                 email = usuario.Email,
+                fotoPerfilUrl = usuario.FotoPerfil is { Length: > 0 } ? $"/api/Usuarios/{usuario.Id}/foto" : null,
                 convitesPendentes = await _projetoService.ListarConvitesPendentes(usuario.Email)
             });
         }

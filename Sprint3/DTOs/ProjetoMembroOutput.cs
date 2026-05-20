@@ -9,5 +9,7 @@ namespace Sprint3.DTOs
         public string Email { get; set; } = string.Empty;
 
         public string NivelAcesso { get; set; } = string.Empty;
+
+        public string? FotoPerfilUrl { get; set; }
     }
 }

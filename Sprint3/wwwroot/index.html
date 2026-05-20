@@ -286,6 +286,8 @@
                 }
 
                 showMessage('success', 'Login realizado com sucesso!');   
+                localStorage.setItem('nomeUsuario', payload.nome || '');
+                localStorage.setItem('fotoPerfilUrl', payload.fotoPerfilUrl || '');
                 localStorage.setItem('convitesPendentes', JSON.stringify(payload.convitesPendentes || []));
 
                 if (remember) {

@@ -24,6 +24,10 @@ namespace Sprint3.Models
 
         public DateTime? RedefinirSenhaExpiraEm { get; set; }
 
+        public byte[]? FotoPerfil { get; set; }
+
+        public string? FotoPerfilContentType { get; set; }
+
         [Required]
         public List<Projeto> Projetos { get; set; } = new List<Projeto>();
 

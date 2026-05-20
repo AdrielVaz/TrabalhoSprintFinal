@@ -41,6 +41,14 @@ namespace Sprint3.Controllers
             return PhysicalFile(path, "text/html");
         }
 
+        [Authorize]
+        [HttpGet("/perfil")]
+        public IActionResult Perfil()
+        {
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "PerfilComponent", "Perfil.html");
+            if (!System.IO.File.Exists(path)) return NotFound();
+            return PhysicalFile(path, "text/html");
+        }
 
     }
 }
