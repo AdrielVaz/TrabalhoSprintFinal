@@ -185,6 +185,12 @@ namespace Sprint3.Migrations
                     b.Property<bool>("EmailConfirmado")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<byte[]>("FotoPerfil")
+                        .HasColumnType("longblob");
+
+                    b.Property<string>("FotoPerfilContentType")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("HashSenha")
                         .IsRequired()
                         .HasColumnType("longtext");

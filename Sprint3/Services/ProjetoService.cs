@@ -132,7 +132,8 @@ namespace Sprint3.Services
                 UsuarioId = a.UsuarioId,
                 Nome = a.Usuario.Nome,
                 Email = a.Usuario.Email,
-                NivelAcesso = a.NivelAcesso.ToString()
+                NivelAcesso = a.NivelAcesso.ToString(),
+                FotoPerfilUrl = a.Usuario.FotoPerfil is { Length: > 0 } ? $"/api/Usuarios/{a.UsuarioId}/foto" : null
             }).ToList();
 
             if (!saida.Any(m => m.UsuarioId == projeto.UsuarioId))
@@ -142,7 +143,8 @@ namespace Sprint3.Services
                     UsuarioId = projeto.UsuarioId,
                     Nome = projeto.Usuario.Nome,
                     Email = projeto.Usuario.Email,
-                    NivelAcesso = NivelAcessoProjeto.Adm.ToString()
+                    NivelAcesso = NivelAcessoProjeto.Adm.ToString(),
+                    FotoPerfilUrl = projeto.Usuario.FotoPerfil is { Length: > 0 } ? $"/api/Usuarios/{projeto.UsuarioId}/foto" : null
                 });
             }
 
@@ -184,7 +186,8 @@ namespace Sprint3.Services
                 UsuarioId = usuario.Id,
                 Nome = usuario.Nome,
                 Email = usuario.Email,
-                NivelAcesso = acesso.NivelAcesso.ToString()
+                NivelAcesso = acesso.NivelAcesso.ToString(),
+                FotoPerfilUrl = usuario.FotoPerfil is { Length: > 0 } ? $"/api/Usuarios/{usuario.Id}/foto" : null
             };
         }
 
