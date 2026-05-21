@@ -13,6 +13,9 @@ using System.Text.Encodings.Web;
 
 namespace Sprint3.Controllers
 {
+    /// <summary>
+    /// Endpoints de autenticação, cadastro, confirmação de email e recuperação de senha.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -34,6 +37,9 @@ namespace Sprint3.Controllers
             _emailService = emailService;
         }
 
+        /// <summary>
+        /// Retorna informações de debug do usuário autenticado e suas claims.
+        /// </summary>
         [HttpGet("debug")]
         public IActionResult Debug()
         {
@@ -44,6 +50,11 @@ namespace Sprint3.Controllers
             });
         }
 
+        /// <summary>
+        /// Autentica o usuário, grava o cookie de autenticação e retorna dados básicos do perfil.
+        /// </summary>
+        /// <param name="input">Email e senha do usuário.</param>
+        /// <returns>Dados do usuário, foto do perfil e convites pendentes.</returns>
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginInput input)
         {
@@ -108,6 +119,11 @@ namespace Sprint3.Controllers
             });
         }
 
+        /// <summary>
+        /// Cadastra um novo usuário e envia um email de confirmação.
+        /// </summary>
+        /// <param name="input">Nome, email e senha do novo usuário.</param>
+        /// <returns>Dados básicos do cadastro e mensagem para confirmar email.</returns>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] CadastroInput input)
         {
@@ -147,6 +163,11 @@ namespace Sprint3.Controllers
             });
         }
 
+        /// <summary>
+        /// Confirma o email do usuário usando o token enviado por email.
+        /// </summary>
+        /// <param name="email">Email da conta pendente de confirmação.</param>
+        /// <param name="token">Token de confirmação recebido por email.</param>
         [HttpGet("confirmar-email")]
         public async Task<IActionResult> ConfirmarEmail([FromQuery] string email, [FromQuery] string token)
         {
@@ -167,6 +188,10 @@ namespace Sprint3.Controllers
             return Content("<html><body style=\"font-family:Arial;text-align:center;padding:40px\"><h2>Email confirmado</h2><p>Sua conta foi confirmada. Voce ja pode fazer login.</p><a href=\"/\">Ir para login</a></body></html>", "text/html");
         }
 
+        /// <summary>
+        /// Reenvia o email de confirmação para uma conta ainda não confirmada.
+        /// </summary>
+        /// <param name="input">Email que receberá o novo link de confirmação.</param>
         [HttpPost("reenviar-confirmacao")]
         public async Task<IActionResult> ReenviarConfirmacao([FromBody] ReenviarConfirmacaoInput input)
         {
@@ -188,6 +213,10 @@ namespace Sprint3.Controllers
             return Ok(new { message = "Se houver uma conta pendente, enviaremos um email de confirmacao." });
         }
 
+        /// <summary>
+        /// Solicita o envio de um link para redefinir a senha.
+        /// </summary>
+        /// <param name="input">Email da conta que receberá as instruções.</param>
         [HttpPost("esqueci-senha")]
         public async Task<IActionResult> EsqueciSenha([FromBody] EsqueciSenhaInput input)
         {
@@ -207,6 +236,10 @@ namespace Sprint3.Controllers
             return Ok(new { message = "Se o email existir, enviaremos instrucoes para redefinir a senha." });
         }
 
+        /// <summary>
+        /// Redefine a senha usando o token enviado por email.
+        /// </summary>
+        /// <param name="input">Email, token e nova senha.</param>
         [HttpPost("redefinir-senha")]
         public async Task<IActionResult> RedefinirSenha([FromBody] RedefinirSenhaInput input)
         {

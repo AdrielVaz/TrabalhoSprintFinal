@@ -395,3 +395,6 @@ C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\hd1041fd
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\2smqkv32eo-{0}-g0uoczpzz6-g0uoczpzz6.gz
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\2to5dwhel7-{0}-c2nmyokrvh-c2nmyokrvh.gz
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\95wks6dc5i-{0}-631mo8lu84-631mo8lu84.gz
+C:\Users\Alisson\Downloads\Sprint3\.codex-build-check\Sprint3.xml
+C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\Sprint3.xml
+C:\Users\Alisson\Downloads\Sprint3\sprint3\bin\Debug\net10.0\Sprint3.xml

@@ -6,6 +6,9 @@ using System.Security.Claims;
 
 namespace Sprint3.Controllers
 {
+    /// <summary>
+    /// Endpoints para criar, listar, editar e remover tarefas dentro de atividades.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class TarefasController : ControllerBase
@@ -17,6 +20,12 @@ namespace Sprint3.Controllers
             _tarefaService = tarefaService;
         }
 
+        /// <summary>
+        /// Cria uma tarefa dentro de uma atividade. Requer permissão de edição.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="atividadeId">Identificador da atividade.</param>
+        /// <param name="input">Dados da tarefa.</param>
         [Authorize]
         [HttpPost("projetos/{projetoId}/atividades/{atividadeId}/tarefas")]
         public async Task<IActionResult> CriarTarefa(int projetoId, int atividadeId, [FromBody] TarefaInput input)
@@ -36,6 +45,11 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Lista as tarefas de uma atividade.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="atividadeId">Identificador da atividade.</param>
         [Authorize]
         [HttpGet("projetos/{projetoId}/atividades/{atividadeId}/tarefas")]
         public async Task<IActionResult> ListarTarefas(int projetoId, int atividadeId)
@@ -55,6 +69,12 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Remove uma tarefa. Requer permissão de edição.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="atividadeId">Identificador da atividade.</param>
+        /// <param name="id">Identificador da tarefa.</param>
         [Authorize]
         [HttpDelete("projetos/{projetoId}/atividades/{atividadeId}/tarefas/{id}")]
         public async Task<IActionResult> Deletar(int projetoId, int atividadeId, int id)
@@ -74,6 +94,13 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Atualiza uma tarefa, incluindo título, descrição, prioridade e status. Requer permissão de edição.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="atividadeId">Identificador da atividade.</param>
+        /// <param name="id">Identificador da tarefa.</param>
+        /// <param name="input">Novos dados da tarefa.</param>
         [Authorize]
         [HttpPut("projetos/{projetoId}/atividades/{atividadeId}/tarefas/{id}")]
         public async Task<IActionResult> AtualizarTarefa(int projetoId, int atividadeId, int id, [FromBody] TarefaInput input)

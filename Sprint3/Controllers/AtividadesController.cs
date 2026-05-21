@@ -6,6 +6,9 @@ using System.Security.Claims;
 
 namespace Sprint3.Controllers
 {
+    /// <summary>
+    /// Endpoints para organizar um projeto em atividades/colunas.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AtividadesController : ControllerBase
@@ -17,6 +20,11 @@ namespace Sprint3.Controllers
             _atividadeService = atividadeService;
         }
 
+        /// <summary>
+        /// Cria uma atividade dentro de um projeto. Requer permissão de edição.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="input">Título e descrição da atividade.</param>
         [Authorize]
         [HttpPost("projetos/{projetoId}/atividades")]
         public async Task<IActionResult> CriarAtividade(int projetoId, [FromBody] AtividadeInput input)
@@ -36,6 +44,10 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Lista as atividades de um projeto, incluindo suas tarefas.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
         [Authorize]
         [HttpGet("projetos/{projetoId}/atividades")]
         public async Task<IActionResult> ListarAtividades(int projetoId)
@@ -55,6 +67,12 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Atualiza o título e a descrição de uma atividade. Requer permissão de edição.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="id">Identificador da atividade.</param>
+        /// <param name="input">Novos dados da atividade.</param>
         [Authorize]
         [HttpPut("projetos/{projetoId}/atividades/{id}")]
         public async Task<IActionResult> AtualizarAtividade(int projetoId, int id, [FromBody] AtividadeInput input)
@@ -74,6 +92,11 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Remove uma atividade e suas tarefas. Requer permissão de edição.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="id">Identificador da atividade.</param>
         [Authorize]
         [HttpDelete("projetos/{projetoId}/atividades/{id}")]
         public async Task<IActionResult> DeletarAtividade(int projetoId, int id)

@@ -1,0 +1,411 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sprint3</name>
+    </assembly>
+    <members>
+        <member name="T:Sprint3.Controllers.AtividadesController">
+            <summary>
+            Endpoints para organizar um projeto em atividades/colunas.
+            </summary>
+        </member>
+        <member name="M:Sprint3.Controllers.AtividadesController.CriarAtividade(System.Int32,Sprint3.DTOs.AtividadeInput)">
+            <summary>
+            Cria uma atividade dentro de um projeto. Requer permissão de edição.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="input">Título e descrição da atividade.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.AtividadesController.ListarAtividades(System.Int32)">
+            <summary>
+            Lista as atividades de um projeto, incluindo suas tarefas.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.AtividadesController.AtualizarAtividade(System.Int32,System.Int32,Sprint3.DTOs.AtividadeInput)">
+            <summary>
+            Atualiza o título e a descrição de uma atividade. Requer permissão de edição.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="id">Identificador da atividade.</param>
+            <param name="input">Novos dados da atividade.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.AtividadesController.DeletarAtividade(System.Int32,System.Int32)">
+            <summary>
+            Remove uma atividade e suas tarefas. Requer permissão de edição.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="id">Identificador da atividade.</param>
+        </member>
+        <member name="T:Sprint3.Controllers.AuthController">
+            <summary>
+            Endpoints de autenticação, cadastro, confirmação de email e recuperação de senha.
+            </summary>
+        </member>
+        <member name="M:Sprint3.Controllers.AuthController.Debug">
+            <summary>
+            Retorna informações de debug do usuário autenticado e suas claims.
+            </summary>
+        </member>
+        <member name="M:Sprint3.Controllers.AuthController.Login(Sprint3.DTOs.LoginInput)">
+            <summary>
+            Autentica o usuário, grava o cookie de autenticação e retorna dados básicos do perfil.
+            </summary>
+            <param name="input">Email e senha do usuário.</param>
+            <returns>Dados do usuário, foto do perfil e convites pendentes.</returns>
+        </member>
+        <member name="M:Sprint3.Controllers.AuthController.Register(Sprint3.DTOs.CadastroInput)">
+            <summary>
+            Cadastra um novo usuário e envia um email de confirmação.
+            </summary>
+            <param name="input">Nome, email e senha do novo usuário.</param>
+            <returns>Dados básicos do cadastro e mensagem para confirmar email.</returns>
+        </member>
+        <member name="M:Sprint3.Controllers.AuthController.ConfirmarEmail(System.String,System.String)">
+            <summary>
+            Confirma o email do usuário usando o token enviado por email.
+            </summary>
+            <param name="email">Email da conta pendente de confirmação.</param>
+            <param name="token">Token de confirmação recebido por email.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.AuthController.ReenviarConfirmacao(Sprint3.DTOs.ReenviarConfirmacaoInput)">
+            <summary>
+            Reenvia o email de confirmação para uma conta ainda não confirmada.
+            </summary>
+            <param name="input">Email que receberá o novo link de confirmação.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.AuthController.EsqueciSenha(Sprint3.DTOs.EsqueciSenhaInput)">
+            <summary>
+            Solicita o envio de um link para redefinir a senha.
+            </summary>
+            <param name="input">Email da conta que receberá as instruções.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.AuthController.RedefinirSenha(Sprint3.DTOs.RedefinirSenhaInput)">
+            <summary>
+            Redefine a senha usando o token enviado por email.
+            </summary>
+            <param name="input">Email, token e nova senha.</param>
+        </member>
+        <member name="T:Sprint3.Controllers.ProjetosController">
+            <summary>
+            Endpoints para criar, listar, editar, compartilhar e administrar projetos.
+            </summary>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.CriarProjeto(Sprint3.DTOs.ProjetoInput)">
+            <summary>
+            Cria um projeto para o usuário autenticado.
+            </summary>
+            <param name="input">Nome/descrição do projeto.</param>
+            <returns>Projeto criado com o usuário como administrador.</returns>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.ListarProjetos">
+            <summary>
+            Lista todos os projetos acessíveis pelo usuário autenticado.
+            </summary>
+            <returns>Projetos próprios e compartilhados, incluindo nível de acesso.</returns>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.Atualizar(System.Int32,Sprint3.DTOs.ProjetoInput)">
+            <summary>
+            Atualiza o nome/descrição de um projeto. Requer administrador.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="input">Novo nome/descrição do projeto.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.Deletar(System.Int32)">
+            <summary>
+            Remove um projeto. Requer administrador.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.CompartilharProjeto(System.Int32,Sprint3.DTOs.ProjetoAcessoInput)">
+            <summary>
+            Envia convite para compartilhar um projeto com outro usuário por email.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="input">Email convidado e nível de acesso desejado.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.RemoverMembro(System.Int32,Sprint3.DTOs.RemoverProjetoMembroInput)">
+            <summary>
+            Remove um participante do projeto usando o email no corpo da requisição. Requer administrador.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="input">Email do participante a remover.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.RemoverMembroPorPost(System.Int32,Sprint3.DTOs.RemoverProjetoMembroInput)">
+            <summary>
+            Remove um participante do projeto usando POST, indicado para uso no front e no Swagger. Requer administrador.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="input">Email do participante a remover.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.ListarMembros(System.Int32)">
+            <summary>
+            Lista os participantes de um projeto, com nome, email, permissão e foto.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.ListarConvitesPendentes">
+            <summary>
+            Lista convites pendentes para o email do usuário autenticado.
+            </summary>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.AceitarConvite(System.Int32)">
+            <summary>
+            Aceita um convite de projeto pendente.
+            </summary>
+            <param name="conviteId">Identificador do convite.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.ProjetosController.RecusarConvite(System.Int32)">
+            <summary>
+            Recusa um convite de projeto pendente.
+            </summary>
+            <param name="conviteId">Identificador do convite.</param>
+        </member>
+        <member name="T:Sprint3.Controllers.TarefasController">
+            <summary>
+            Endpoints para criar, listar, editar e remover tarefas dentro de atividades.
+            </summary>
+        </member>
+        <member name="M:Sprint3.Controllers.TarefasController.CriarTarefa(System.Int32,System.Int32,Sprint3.DTOs.TarefaInput)">
+            <summary>
+            Cria uma tarefa dentro de uma atividade. Requer permissão de edição.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="atividadeId">Identificador da atividade.</param>
+            <param name="input">Dados da tarefa.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.TarefasController.ListarTarefas(System.Int32,System.Int32)">
+            <summary>
+            Lista as tarefas de uma atividade.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="atividadeId">Identificador da atividade.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.TarefasController.Deletar(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Remove uma tarefa. Requer permissão de edição.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="atividadeId">Identificador da atividade.</param>
+            <param name="id">Identificador da tarefa.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.TarefasController.AtualizarTarefa(System.Int32,System.Int32,System.Int32,Sprint3.DTOs.TarefaInput)">
+            <summary>
+            Atualiza uma tarefa, incluindo título, descrição, prioridade e status. Requer permissão de edição.
+            </summary>
+            <param name="projetoId">Identificador do projeto.</param>
+            <param name="atividadeId">Identificador da atividade.</param>
+            <param name="id">Identificador da tarefa.</param>
+            <param name="input">Novos dados da tarefa.</param>
+        </member>
+        <member name="T:Sprint3.Controllers.UsuariosController">
+            <summary>
+            Endpoints para perfil do usuário autenticado e foto de perfil.
+            </summary>
+        </member>
+        <member name="M:Sprint3.Controllers.UsuariosController.ObterPerfil">
+            <summary>
+            Retorna os dados do perfil do usuário autenticado.
+            </summary>
+        </member>
+        <member name="M:Sprint3.Controllers.UsuariosController.AtualizarPerfil(Sprint3.DTOs.UsuarioPerfilInput)">
+            <summary>
+            Atualiza nome e foto do perfil do usuário autenticado.
+            </summary>
+            <param name="input">Nome e arquivo de imagem enviados como multipart/form-data.</param>
+        </member>
+        <member name="M:Sprint3.Controllers.UsuariosController.ObterFoto(System.Int32)">
+            <summary>
+            Retorna a foto de perfil de um usuário.
+            </summary>
+            <param name="id">Identificador do usuário.</param>
+        </member>
+        <member name="T:Sprint3.DTOs.AtividadeInput">
+            <summary>
+            Dados para criar ou editar atividade.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.AtividadeInput.Titulo">
+            <summary>Título da atividade/coluna.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.AtividadeInput.Descricao">
+            <summary>Descrição opcional da atividade.</summary>
+        </member>
+        <member name="T:Sprint3.DTOs.CadastroInput">
+            <summary>
+            Dados para cadastro de usuário.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.CadastroInput.Nome">
+            <summary>Nome exibido no sistema.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.CadastroInput.Email">
+            <summary>Email usado para login e confirmação de conta.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.CadastroInput.Senha">
+            <summary>Senha inicial da conta.</summary>
+        </member>
+        <member name="T:Sprint3.DTOs.LoginInput">
+            <summary>
+            Dados para login do usuário.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.LoginInput.Email">
+            <summary>Email cadastrado.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.LoginInput.Senha">
+            <summary>Senha da conta.</summary>
+        </member>
+        <member name="T:Sprint3.DTOs.ProjetoAcessoInput">
+            <summary>
+            Dados para convidar usuário para um projeto.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.ProjetoAcessoInput.Email">
+            <summary>Email do usuário convidado.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.ProjetoAcessoInput.NivelAcesso">
+            <summary>Nível de acesso concedido: Adm, Observador ou Ajudante.</summary>
+        </member>
+        <member name="T:Sprint3.DTOs.ProjetoInput">
+            <summary>
+            Dados para criar ou editar projeto.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.ProjetoInput.Descricao">
+            <summary>Nome ou descrição do projeto.</summary>
+        </member>
+        <member name="T:Sprint3.DTOs.ProjetoOutput">
+            <summary>
+            Dados retornados para um projeto acessível pelo usuário.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.ProjetoOutput.Id">
+            <summary>Identificador do projeto.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.ProjetoOutput.Descricao">
+            <summary>Nome ou descrição do projeto.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.ProjetoOutput.NivelAcesso">
+            <summary>Nível de acesso do usuário autenticado neste projeto.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.ProjetoOutput.Compartilhado">
+            <summary>Indica se o projeto foi compartilhado com o usuário autenticado.</summary>
+        </member>
+        <member name="T:Sprint3.DTOs.RemoverProjetoMembroInput">
+            <summary>
+            Dados para remover participante de um projeto.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.RemoverProjetoMembroInput.Email">
+            <summary>Email do participante que será removido.</summary>
+        </member>
+        <member name="T:Sprint3.DTOs.TarefaInput">
+            <summary>
+            Dados para criar ou editar tarefa.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.TarefaInput.Titulo">
+            <summary>Título da tarefa.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.TarefaInput.Descricao">
+            <summary>Descrição opcional da tarefa.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.TarefaInput.Concluida">
+            <summary>Indica se a tarefa está concluída.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.TarefaInput.DataCriacao">
+            <summary>Data de criação da tarefa.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.TarefaInput.DataConclusao">
+            <summary>Data de conclusão da tarefa, quando concluída.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.TarefaInput.Prioridade">
+            <summary>Prioridade da tarefa: Alta, Media ou Baixa.</summary>
+        </member>
+        <member name="T:Sprint3.DTOs.UsuarioPerfilInput">
+            <summary>
+            Dados para atualizar perfil do usuário autenticado.
+            </summary>
+        </member>
+        <member name="P:Sprint3.DTOs.UsuarioPerfilInput.Nome">
+            <summary>Novo nome exibido no sistema.</summary>
+        </member>
+        <member name="P:Sprint3.DTOs.UsuarioPerfilInput.Foto">
+            <summary>Arquivo de imagem para foto de perfil. Limite de 2 MB.</summary>
+        </member>
+        <member name="T:Sprint3.Migrations.initial">
+            <inheritdoc />
+        </member>
+        <member name="M:Sprint3.Migrations.initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Sprint3.Migrations.initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Sprint3.Migrations.initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:Sprint3.Migrations.AddUserProfilePhoto">
+            <inheritdoc />
+        </member>
+        <member name="M:Sprint3.Migrations.AddUserProfilePhoto.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Sprint3.Migrations.AddUserProfilePhoto.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Sprint3.Migrations.AddUserProfilePhoto.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type)">
+            <summary>
+            Generates a documentation comment ID for a type.
+            Example: T:Namespace.Outer+Inner`1 becomes T:Namespace.Outer.Inner`1
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.PropertyInfo)">
+            <summary>
+            Generates a documentation comment ID for a property.
+            Example: P:Namespace.ContainingType.PropertyName or for an indexer P:Namespace.ContainingType.Item(System.Int32)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type,System.String)">
+            <summary>
+            Generates a documentation comment ID for a property given its container type and property name.
+            Example: P:Namespace.ContainingType.PropertyName
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.MethodInfo)">
+            <summary>
+            Generates a documentation comment ID for a method (or constructor).
+            For example:
+              M:Namespace.ContainingType.MethodName(ParamType1,ParamType2)~ReturnType
+              M:Namespace.ContainingType.#ctor(ParamType)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.GetTypeDocId(System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            Generates a documentation ID string for a type.
+            This method handles nested types (replacing '+' with '.'),
+            generic types, arrays, pointers, by-ref types, and generic parameters.
+            The <paramref name="includeGenericArguments"/> flag controls whether
+            constructed generic type arguments are emitted, while <paramref name="omitGenericArity"/>
+            controls whether the generic arity marker (e.g. "`1") is appended.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.NormalizeDocId(System.String)">
+            <summary>
+            Normalizes a documentation comment ID to match the compiler-style format.
+            Strips the return type suffix for ordinary methods but retains it for conversion operators.
+            </summary>
+            <param name="docId">The documentation comment ID to normalize.</param>
+            <returns>The normalized documentation comment ID.</returns>
+        </member>
+    </members>
+</doc>

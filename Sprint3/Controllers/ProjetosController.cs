@@ -6,6 +6,9 @@ using System.Security.Claims;
 
 namespace Sprint3.Controllers
 {
+    /// <summary>
+    /// Endpoints para criar, listar, editar, compartilhar e administrar projetos.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class ProjetosController : ControllerBase
@@ -17,6 +20,11 @@ namespace Sprint3.Controllers
             _projetoService = projetoService;
         }
 
+        /// <summary>
+        /// Cria um projeto para o usuário autenticado.
+        /// </summary>
+        /// <param name="input">Nome/descrição do projeto.</param>
+        /// <returns>Projeto criado com o usuário como administrador.</returns>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CriarProjeto([FromBody] ProjetoInput input)
@@ -43,6 +51,10 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Lista todos os projetos acessíveis pelo usuário autenticado.
+        /// </summary>
+        /// <returns>Projetos próprios e compartilhados, incluindo nível de acesso.</returns>
         [Authorize]
         [HttpPost("projetos/Listar")]
         public async Task<IActionResult> ListarProjetos()
@@ -58,6 +70,12 @@ namespace Sprint3.Controllers
 
             return Ok(projetos);
         }
+
+        /// <summary>
+        /// Atualiza o nome/descrição de um projeto. Requer administrador.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="input">Novo nome/descrição do projeto.</param>
         [Authorize]
         [HttpPut("{projetoId}")]
         public async Task<IActionResult> Atualizar(int projetoId, [FromBody] ProjetoInput input)
@@ -77,6 +95,10 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Remove um projeto. Requer administrador.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
         [Authorize]
         [HttpDelete("{projetoId}")]
         public async Task<IActionResult> Deletar(int projetoId)
@@ -99,6 +121,11 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Envia convite para compartilhar um projeto com outro usuário por email.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="input">Email convidado e nível de acesso desejado.</param>
         [Authorize]
         [HttpPost("{projetoId}/acessos")]
         public async Task<IActionResult> CompartilharProjeto(int projetoId, [FromBody] ProjetoAcessoInput input)
@@ -120,6 +147,11 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Remove um participante do projeto usando o email no corpo da requisição. Requer administrador.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="input">Email do participante a remover.</param>
         [Authorize]
         [HttpDelete("{projetoId}/membros")]
         public async Task<IActionResult> RemoverMembro(int projetoId, [FromBody] RemoverProjetoMembroInput input)
@@ -127,6 +159,11 @@ namespace Sprint3.Controllers
             return await RemoverMembroProjeto(projetoId, input);
         }
 
+        /// <summary>
+        /// Remove um participante do projeto usando POST, indicado para uso no front e no Swagger. Requer administrador.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
+        /// <param name="input">Email do participante a remover.</param>
         [Authorize]
         [HttpPost("{projetoId}/membros/remover")]
         public async Task<IActionResult> RemoverMembroPorPost(int projetoId, [FromBody] RemoverProjetoMembroInput input)
@@ -151,6 +188,10 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Lista os participantes de um projeto, com nome, email, permissão e foto.
+        /// </summary>
+        /// <param name="projetoId">Identificador do projeto.</param>
         [Authorize]
         [HttpGet("{projetoId}/membros")]
         public async Task<IActionResult> ListarMembros(int projetoId)
@@ -172,6 +213,9 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Lista convites pendentes para o email do usuário autenticado.
+        /// </summary>
         [Authorize]
         [HttpGet("convites/pendentes")]
         public async Task<IActionResult> ListarConvitesPendentes()
@@ -188,6 +232,10 @@ namespace Sprint3.Controllers
             return Ok(convites);
         }
 
+        /// <summary>
+        /// Aceita um convite de projeto pendente.
+        /// </summary>
+        /// <param name="conviteId">Identificador do convite.</param>
         [Authorize]
         [HttpPost("convites/{conviteId}/aceitar")]
         public async Task<IActionResult> AceitarConvite(int conviteId)
@@ -207,6 +255,10 @@ namespace Sprint3.Controllers
             }
         }
 
+        /// <summary>
+        /// Recusa um convite de projeto pendente.
+        /// </summary>
+        /// <param name="conviteId">Identificador do convite.</param>
         [Authorize]
         [HttpPost("convites/{conviteId}/recusar")]
         public async Task<IActionResult> RecusarConvite(int conviteId)

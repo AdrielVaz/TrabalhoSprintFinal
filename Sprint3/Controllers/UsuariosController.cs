@@ -7,6 +7,9 @@ using System.Security.Claims;
 
 namespace Sprint3.Controllers
 {
+    /// <summary>
+    /// Endpoints para perfil do usuário autenticado e foto de perfil.
+    /// </summary>
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
@@ -20,6 +23,9 @@ namespace Sprint3.Controllers
             _usuarioRepository = usuarioRepository;
         }
 
+        /// <summary>
+        /// Retorna os dados do perfil do usuário autenticado.
+        /// </summary>
         [HttpGet("me")]
         public async Task<IActionResult> ObterPerfil()
         {
@@ -30,6 +36,10 @@ namespace Sprint3.Controllers
             return Ok(MapPerfil(usuario));
         }
 
+        /// <summary>
+        /// Atualiza nome e foto do perfil do usuário autenticado.
+        /// </summary>
+        /// <param name="input">Nome e arquivo de imagem enviados como multipart/form-data.</param>
         [HttpPut("me")]
         [RequestSizeLimit(TamanhoMaximoFoto + 1024 * 128)]
         public async Task<IActionResult> AtualizarPerfil([FromForm] UsuarioPerfilInput input)
@@ -64,6 +74,10 @@ namespace Sprint3.Controllers
             return Ok(MapPerfil(usuario, true));
         }
 
+        /// <summary>
+        /// Retorna a foto de perfil de um usuário.
+        /// </summary>
+        /// <param name="id">Identificador do usuário.</param>
         [HttpGet("{id:int}/foto")]
         public async Task<IActionResult> ObterFoto(int id)
         {
