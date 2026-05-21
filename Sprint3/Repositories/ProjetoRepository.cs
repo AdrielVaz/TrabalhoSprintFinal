@@ -43,6 +43,20 @@ namespace Sprint3.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Projeto> Atualizar(Projeto projeto)
+        {
+            var projetoExistente = await _context.Projetos.FindAsync(projeto.Id);
+            if (projetoExistente == null)
+            {
+                throw new Exception("Projeto nÃ£o encontrado");
+            }
+
+            projetoExistente.Descricao = projeto.Descricao;
+            _context.Projetos.Update(projetoExistente);
+            await _context.SaveChangesAsync();
+            return projetoExistente;
+        }
+
         public async Task<Projeto> Deletar(int id)
         {
             var projeto = await _context.Projetos.FindAsync(id);

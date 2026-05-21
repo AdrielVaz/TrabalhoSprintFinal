@@ -59,6 +59,25 @@ namespace Sprint3.Controllers
             return Ok(projetos);
         }
         [Authorize]
+        [HttpPut("{projetoId}")]
+        public async Task<IActionResult> Atualizar(int projetoId, [FromBody] ProjetoInput input)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            try
+            {
+                var projeto = await _projetoService.AtualizarProjeto(projetoId, int.Parse(userIdClaim.Value), input);
+                return Ok(projeto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
         [HttpDelete("{projetoId}")]
         public async Task<IActionResult> Deletar(int projetoId)
         {
@@ -93,6 +112,37 @@ namespace Sprint3.Controllers
             try
             {
                 var membro = await _projetoService.CompartilharProjeto(projetoId, usuarioId, input);
+                return Ok(membro);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("{projetoId}/membros")]
+        public async Task<IActionResult> RemoverMembro(int projetoId, [FromBody] RemoverProjetoMembroInput input)
+        {
+            return await RemoverMembroProjeto(projetoId, input);
+        }
+
+        [Authorize]
+        [HttpPost("{projetoId}/membros/remover")]
+        public async Task<IActionResult> RemoverMembroPorPost(int projetoId, [FromBody] RemoverProjetoMembroInput input)
+        {
+            return await RemoverMembroProjeto(projetoId, input);
+        }
+
+        private async Task<IActionResult> RemoverMembroProjeto(int projetoId, RemoverProjetoMembroInput input)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            try
+            {
+                var membro = await _projetoService.RemoverMembroProjeto(projetoId, int.Parse(userIdClaim.Value), input);
                 return Ok(membro);
             }
             catch (Exception ex)

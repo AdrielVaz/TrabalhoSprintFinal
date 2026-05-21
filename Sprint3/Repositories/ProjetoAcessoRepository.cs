@@ -39,6 +39,13 @@ namespace Sprint3.Repositories
                 .FirstOrDefaultAsync(a => a.ProjetoId == projetoId && a.UsuarioId == usuarioId);
         }
 
+        public async Task<ProjetoAcesso?> ObterPorProjetoEEmail(int projetoId, string email)
+        {
+            return await _db.ProjetoAcessos
+                .Include(a => a.Usuario)
+                .FirstOrDefaultAsync(a => a.ProjetoId == projetoId && a.Usuario.Email.ToLower() == email);
+        }
+
         public async Task<List<ProjetoAcesso>> ListarPorProjeto(int projetoId)
         {
             return await _db.ProjetoAcessos
@@ -53,6 +60,22 @@ namespace Sprint3.Repositories
                 .Include(a => a.Projeto)
                 .Where(a => a.UsuarioId == usuarioId)
                 .ToListAsync();
+        }
+
+        public async Task<ProjetoAcesso> Deletar(int id)
+        {
+            var acesso = await _db.ProjetoAcessos
+                .Include(a => a.Usuario)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (acesso == null)
+            {
+                throw new Exception("Participante nÃ£o encontrado");
+            }
+
+            _db.ProjetoAcessos.Remove(acesso);
+            await _db.SaveChangesAsync();
+            return acesso;
         }
     }
 }

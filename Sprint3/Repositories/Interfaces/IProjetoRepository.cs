@@ -7,6 +7,7 @@ namespace Sprint3.Repositories.Interfaces
         Task<Projeto> Criar(Projeto projeto);
         Task<Projeto> ObterPorId(int id);
         Task<List<Projeto>> ListarPorUsuario(int usuarioId);
+        Task<Projeto> Atualizar(Projeto projeto);
         Task<Projeto> Deletar(int id);
     }
 }

@@ -52,7 +52,7 @@ namespace Sprint3.Services
                 NivelAcesso = NivelAcessoProjeto.Adm
             });
 
-            return MapProjeto(projeto, NivelAcessoProjeto.Adm);
+            return MapProjeto(projeto, NivelAcessoProjeto.Adm, false);
         }
 
         public async Task<List<ProjetoOutput>> ListarProjetos(int usuarioId)
@@ -62,8 +62,25 @@ namespace Sprint3.Services
             return projetos.Select(p =>
             {
                 var acesso = ObterNivelDoProjeto(p, usuarioId);
-                return MapProjeto(p, acesso);
+                return MapProjeto(p, acesso, p.UsuarioId != usuarioId);
             }).ToList();
+        }
+
+        public async Task<ProjetoOutput> AtualizarProjeto(int projetoId, int usuarioId, ProjetoInput input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Descricao))
+                throw new Exception("Nome do projeto Ã© obrigatÃ³rio");
+
+            var projeto = await _projetoRepository.ObterPorId(projetoId);
+            var nivelAcesso = ObterNivelDoProjeto(projeto, usuarioId);
+
+            if (nivelAcesso != NivelAcessoProjeto.Adm)
+                throw new Exception("Apenas administradores podem editar o projeto");
+
+            projeto.Descricao = input.Descricao.Trim();
+            var projetoAtualizado = await _projetoRepository.Atualizar(projeto);
+
+            return MapProjeto(projetoAtualizado, nivelAcesso, projeto.UsuarioId != usuarioId);
         }
 
         public async Task<ProjetoOutput> DeletarProjeto(int projetoId, int usuarioId)
@@ -76,7 +93,7 @@ namespace Sprint3.Services
 
             var projetoDeletado = await _projetoRepository.Deletar(projetoId);
 
-            return MapProjeto(projetoDeletado, nivelAcesso);
+            return MapProjeto(projetoDeletado, nivelAcesso, projeto.UsuarioId != usuarioId);
         }
 
         public async Task<ConviteProjetoOutput> CompartilharProjeto(int projetoId, int usuarioId, ProjetoAcessoInput input)
@@ -118,6 +135,37 @@ namespace Sprint3.Services
             convite.Projeto = projeto;
 
             return MapConvite(convite);
+        }
+
+        public async Task<ProjetoMembroOutput> RemoverMembroProjeto(int projetoId, int usuarioId, RemoverProjetoMembroInput input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Email))
+                throw new Exception("Email Ã© obrigatÃ³rio");
+
+            var projeto = await _projetoRepository.ObterPorId(projetoId);
+            var nivelAcesso = ObterNivelDoProjeto(projeto, usuarioId);
+
+            if (nivelAcesso != NivelAcessoProjeto.Adm)
+                throw new Exception("Apenas administradores podem remover participantes");
+
+            var email = input.Email.Trim().ToLowerInvariant();
+            if (projeto.Usuario.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+                throw new Exception("O administrador dono do projeto nÃ£o pode ser removido");
+
+            var acesso = await _acessoRepository.ObterPorProjetoEEmail(projetoId, email);
+            if (acesso == null)
+                throw new Exception("Participante nÃ£o encontrado neste projeto");
+
+            var acessoRemovido = await _acessoRepository.Deletar(acesso.Id);
+
+            return new ProjetoMembroOutput
+            {
+                UsuarioId = acessoRemovido.UsuarioId,
+                Nome = acessoRemovido.Usuario.Nome,
+                Email = acessoRemovido.Usuario.Email,
+                NivelAcesso = acessoRemovido.NivelAcesso.ToString(),
+                FotoPerfilUrl = acessoRemovido.Usuario.FotoPerfil is { Length: > 0 } ? $"/api/Usuarios/{acessoRemovido.UsuarioId}/foto" : null
+            };
         }
 
         public async Task<List<ProjetoMembroOutput>> ListarMembros(int projetoId, int usuarioId)
@@ -222,13 +270,14 @@ namespace Sprint3.Services
             return acesso.NivelAcesso;
         }
 
-        private static ProjetoOutput MapProjeto(Projeto projeto, NivelAcessoProjeto nivelAcesso)
+        private static ProjetoOutput MapProjeto(Projeto projeto, NivelAcessoProjeto nivelAcesso, bool compartilhado)
         {
             return new ProjetoOutput
             {
                 Id = projeto.Id,
                 Descricao = projeto.Descricao,
-                NivelAcesso = nivelAcesso.ToString()
+                NivelAcesso = nivelAcesso.ToString(),
+                Compartilhado = compartilhado
             };
         }
 
