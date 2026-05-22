@@ -1,50 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Redefinir senha</title>
-    <style>
-        :root {
-            --bg-deep: #0c1222;
-            --text: #e8edf5;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: "Outfit", system-ui, sans-serif;
-            color: var(--text);
-            background-color: var(--bg-deep);
-            background-image: radial-gradient(ellipse 120% 80% at 10% -20%, rgba(34, 211, 238, 0.18), transparent 50%), radial-gradient(ellipse 90% 60% at 100% 0%, rgba(99, 102, 241, 0.14), transparent 45%);
-            display: grid;
-            place-items: center;
-            padding: 24px;
-        }
-
-        .auth-card {
-            width: min(420px, 100%);
-            padding: 32px;
-            background: #fff;
-            color: #0f172a;
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
-        }
-
-        .brand-name {
-            text-align: center;
-            font-size: 32px;
-            font-weight: 800;
-            color: #0f172a;
-        }
-
-        @media (max-width: 480px) {
-            .auth-card {
-                padding: 24px 18px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="RedefinirSenha.css">
 </head>
 <body>
     <main class="auth-card">
@@ -64,50 +25,8 @@
         </form>
         <p class="text-center mt-3 mb-0"><a href="/">Voltar para login</a></p>
     </main>
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const email = params.get('email') || '';
-        const token = params.get('token') || '';
-        const form = document.getElementById('resetForm');
-        const message = document.getElementById('message');
-        const submitBtn = document.getElementById('submitBtn');
-
-        function showMessage(type, text) {
-            message.className = 'alert ' + (type === 'error' ? 'alert-danger' : 'alert-success');
-            message.textContent = text;
-            message.style.display = 'block';
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            if (password !== confirmPassword) {
-                showMessage('error', 'As senhas não coincidem.');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Alterando...';
-
-            try {
-                const response = await fetch('/api/Auth/redefinir-senha', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, token, novaSenha: password })
-                });
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(data.message || 'Não foi possível alterar a senha.');
-                showMessage('success', data.message || 'Senha alterada.');
-                form.reset();
-            } catch (error) {
-                showMessage('error', error.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Alterar senha';
-            }
-        });
-    </script>
+    <script src="RedefinirSenha.js"></script>
 </body>
 </html>
+
+

@@ -1,0 +1,116 @@
+﻿:root {
+            --bg-deep: #0c1222;
+            --accent: #22d3ee;
+            --accent-dim: rgba(34, 211, 238, 0.15);
+            --text: #e8edf5;
+            --text-muted: #8b9cb8;
+            --sidebar-bg: rgba(18, 26, 46, 0.72);
+            --sidebar-border: rgba(255, 255, 255, 0.06);
+            --list-bg: rgba(248, 250, 252, 0.97);
+            --list-border: rgba(15, 23, 42, 0.06);
+            --card-bg: #ffffff;
+            --column-width: 286px;
+            --header-h: 56px;
+            --radius-lg: 14px;
+            --radius-md: 10px;
+            --shadow-card: 0 4px 14px rgba(15, 23, 42, 0.08), 0 0 1px rgba(15, 23, 42, 0.06);
+            --shadow-card-hover: 0 10px 28px rgba(15, 23, 42, 0.12), 0 0 1px rgba(15, 23, 42, 0.08);
+        }
+
+        body {
+            overflow-x: hidden;
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Outfit", system-ui, sans-serif;
+            color: var(--text);
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(ellipse 120% 80% at 10% -20%, rgba(34, 211, 238, 0.18), transparent 50%), radial-gradient(ellipse 90% 60% at 100% 0%, rgba(99, 102, 241, 0.14), transparent 45%), radial-gradient(ellipse 70% 50% at 50% 100%, rgba(14, 165, 233, 0.12), transparent 55%);
+            background-attachment: fixed;
+        }
+
+        .input-group-text {
+            cursor: pointer;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            margin: 40px auto;
+            width: min(400px, calc(100% - 32px));
+            padding: 32px 40px;
+            background: rgb(255, 255, 255);
+            border-radius: 3px;
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 10px;
+            box-sizing: border-box;
+        }
+
+        .img-h1 {
+            text-align: center;
+        }
+
+        .img-icon {
+            width: 100px;
+        }
+
+        .brand-name {
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #999, #ccc, #666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .terms {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        #terms {
+            margin-top: 10px;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        label {
+            color: black
+        }
+
+        p {
+            color: black
+        }
+        .text-successful{
+            color: green;
+            
+        }
+
+        @media (max-width: 480px) {
+            body {
+                display: grid;
+                place-items: center;
+                padding: 18px 0;
+            }
+
+            .container {
+                margin: 0 auto;
+                padding: 24px 18px;
+            }
+
+            .img-icon {
+                width: 78px;
+            }
+
+            .terms {
+                font-size: 0.9rem;
+            }
+        }
