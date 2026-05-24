@@ -1,0 +1,8 @@
+.env
+*.env
+Sprint3/.env
+bin/
+obj/
+.vs/
+.codex-build-check/
+build-check/

@@ -13,6 +13,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+LoadDotEnv(builder.Configuration, builder.Environment.ContentRootPath);
+
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 builder.Services.AddOpenApi();
@@ -53,6 +55,10 @@ builder.Services.AddScoped<IProjetoConviteRepository, ProjetoConviteRepository>(
 builder.Services.AddScoped<IEmailService, EmailService>();
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"];
+if (string.IsNullOrWhiteSpace(secretKey))
+{
+    throw new InvalidOperationException("Jwt__SecretKey was not found. Configure it in Sprint3/.env or in the environment variables.");
+}
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -136,3 +142,51 @@ app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();
+
+static void LoadDotEnv(ConfigurationManager configuration, string contentRootPath)
+{
+    var candidates = new[]
+    {
+        Path.Combine(contentRootPath, ".env"),
+        Path.Combine(Directory.GetCurrentDirectory(), ".env"),
+        Path.Combine(Directory.GetCurrentDirectory(), "Sprint3", ".env")
+    };
+
+    var envPath = candidates
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .FirstOrDefault(File.Exists);
+
+    if (envPath is null)
+    {
+        return;
+    }
+
+    var values = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+    foreach (var rawLine in File.ReadAllLines(envPath))
+    {
+        var line = rawLine.Trim();
+        if (line.Length == 0 || line.StartsWith("#"))
+        {
+            continue;
+        }
+
+        var separatorIndex = line.IndexOf('=');
+        if (separatorIndex <= 0)
+        {
+            continue;
+        }
+
+        var key = line[..separatorIndex].Trim().Replace("__", ":");
+        var value = line[(separatorIndex + 1)..].Trim();
+        if ((value.StartsWith("\"") && value.EndsWith("\"")) ||
+            (value.StartsWith("'") && value.EndsWith("'")))
+        {
+            value = value[1..^1];
+        }
+
+        values[key] = value;
+    }
+
+    configuration.AddInMemoryCollection(values);
+    configuration.AddEnvironmentVariables();
+}
