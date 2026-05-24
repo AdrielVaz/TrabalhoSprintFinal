@@ -9,12 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link id="mainScreenStylesheet" rel="stylesheet" href="MainScreen.css?v=20260524">
-    <script>
-        if (window.location.protocol !== 'file:') {
-            document.getElementById('mainScreenStylesheet').href = '/MainScreenComponent/MainScreen.css?v=20260524';
-        }
-    </script>
+    <link rel="stylesheet" href="/MainScreenComponent/MainScreen.css?v=20260524-2">
 </head>
 <body>
     <header class="app-header">
@@ -252,13 +247,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"></script>
-    <script>
-        const mainScreenScript = document.createElement('script');
-        mainScreenScript.src = window.location.protocol === 'file:'
-            ? 'MainScreen.js?v=20260524'
-            : '/MainScreenComponent/MainScreen.js?v=20260524';
-        document.body.appendChild(mainScreenScript);
-    </script>
+    <script src="/MainScreenComponent/MainScreen.js?v=20260524-2"></script>
 </body>
 </html>
 
