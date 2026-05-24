@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Sprint3.DTOs;
 using Sprint3.Models;
@@ -104,8 +104,9 @@ namespace Sprint3.Controllers
             Response.Cookies.Append("authToken", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
+                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.Lax,
+                Path = "/",
                 Expires = DateTime.UtcNow.AddMinutes(15)
             });
 
@@ -162,7 +163,26 @@ namespace Sprint3.Controllers
                 message = $"Cadastro realizado. Confirme sua conta na caixa de entrada de {usuario.Email}."
             });
         }
+        /// <summary>
+        /// Encerra a sessão removendo o cookie JWT de autenticação.
+        /// </summary>
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("authToken", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
+                Path = "/"
+            });
 
+            return Ok(new
+            {
+                returnUrl = "/",
+                message = "Logout realizado com sucesso"
+            });
+        }
         /// <summary>
         /// Confirma o email do usuário usando o token enviado por email.
         /// </summary>

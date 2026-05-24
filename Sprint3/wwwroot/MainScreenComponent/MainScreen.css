@@ -73,6 +73,16 @@
                 color: transparent;
             }
 
+            .app-header .welcome-text {
+                min-width: 0;
+                max-width: 260px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: #cbd5e1;
+                font-size: 0.9rem;
+            }
+
             .app-header .btn-leave {
                 display: inline-flex;
                 align-items: center;
@@ -86,12 +96,18 @@
                 border: 1px solid rgba(255, 255, 255, 0.08);
                 text-decoration: none;
                 transition: color 0.2s, background 0.2s, border-color 0.2s;
+                cursor: pointer;
             }
 
                 .app-header .btn-leave:hover {
                     color: #fff;
                     background: rgba(255, 255, 255, 0.1);
                     border-color: rgba(255, 255, 255, 0.14);
+                }
+
+                .app-header .btn-leave:disabled {
+                    opacity: 0.65;
+                    cursor: wait;
                 }
 
             .app-header .profile-link {
@@ -1080,7 +1096,86 @@
             flex-shrink: 0;
         }
 
+        @media (max-width: 1024px) {
+            :root {
+                --column-width: 268px;
+            }
+
+            .app-header {
+                padding-inline: 0.9rem;
+            }
+
+            .app-header .welcome-text {
+                max-width: 180px;
+            }
+
+            .sidebar {
+                width: 238px;
+                min-width: 238px;
+            }
+
+            .board-wrap {
+                padding-right: 0.75rem;
+            }
+
+            .board-head {
+                align-items: flex-start;
+            }
+
+            .board-actions {
+                justify-content: flex-start;
+            }
+        }
+
         @media (max-width: 768px) {
+            :root {
+                --header-h: auto;
+                --column-width: min(88vw, 320px);
+            }
+
+            body {
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            .app-header {
+                min-height: 64px;
+                height: auto;
+                align-items: flex-start;
+                gap: 0.75rem;
+                padding: 0.75rem;
+                flex-wrap: wrap;
+            }
+
+            .app-header .brand-wrap {
+                flex: 1 1 170px;
+                min-width: 0;
+                gap: 0.5rem;
+            }
+
+            .app-header .brand {
+                flex: 0 0 auto;
+            }
+
+            .app-header .welcome-text {
+                flex: 1 1 auto;
+                max-width: none;
+            }
+
+            .app-header .header-actions {
+                flex: 1 1 100%;
+                justify-content: flex-start;
+                gap: 0.45rem;
+                overflow-x: auto;
+                padding-bottom: 0.15rem;
+            }
+
+            .app-header .profile-link,
+            .app-header .btn-notification,
+            .app-header .btn-leave {
+                flex: 0 0 auto;
+            }
+
             .header-profile-name {
                 display: none;
             }
@@ -1088,17 +1183,135 @@
             .layout {
                 flex-direction: column;
                 height: auto;
-                min-height: calc(100vh - var(--header-h));
+                min-height: calc(100vh - 112px);
+                overflow: visible;
             }
 
             .sidebar {
                 width: auto;
-                min-width: 100%;
+                min-width: 0;
                 margin: 0.5rem;
-                max-height: 220px;
+                max-height: none;
+                padding: 0.75rem;
+            }
+
+            .projeto-list {
+                max-height: clamp(150px, 30vh, 240px);
+                overflow-y: auto;
+            }
+
+            .board-wrap {
+                padding: 0 0.5rem 0.75rem;
+                overflow: visible;
+            }
+
+            #boardContent {
+                min-height: auto;
+            }
+
+            .board-head {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.85rem;
+                padding: 0.85rem;
+            }
+
+            .board-title {
+                font-size: 1.15rem;
+            }
+
+            .board-actions {
+                width: 100%;
+                align-items: stretch;
+            }
+
+            .board-action-btn {
+                flex: 1 1 140px;
+                justify-content: center;
+                min-height: 40px;
+            }
+
+            .board-columns {
+                overflow-x: auto;
+                min-height: 55vh;
+                padding-bottom: 0.5rem;
+                scroll-snap-type: x proximity;
+            }
+
+            .column {
+                scroll-snap-align: start;
+                max-height: none;
+                width: var(--column-width);
+                min-width: var(--column-width);
             }
 
             .column-body {
-                max-height: 50vh;
+                max-height: 54vh;
+            }
+
+            .modal-dialog {
+                margin: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-header {
+                padding: 0.65rem;
+            }
+
+            .app-header .logo-mark {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+            }
+
+            .app-header .btn-notification {
+                padding: 0.42rem 0.58rem;
+            }
+
+            .app-header .btn-leave {
+                padding: 0.42rem 0.65rem;
+            }
+
+            .app-header .brand {
+                display: none;
+            }
+
+            .app-header .welcome-text {
+                font-size: 0.82rem;
+            }
+
+            .profile-link {
+                padding-right: 0.4rem;
+            }
+
+            .sidebar {
+                margin: 0.4rem;
+            }
+
+            .board-wrap {
+                padding-inline: 0.4rem;
+            }
+
+            .board-head {
+                padding-inline: 0.1rem;
+            }
+
+            .board-action-btn {
+                flex-basis: 100%;
+            }
+
+            .column-body {
+                max-height: 58vh;
+            }
+
+            .invite-item,
+            .member-remove-option {
+                align-items: flex-start;
+            }
+
+            .invite-actions {
+                flex-direction: column;
+                align-items: stretch;
             }
         }

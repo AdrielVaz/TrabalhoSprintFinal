@@ -93,9 +93,44 @@
             recusarConvite: (conviteId) => fetch(`/api/Projetos/convites/${conviteId}/recusar`, {
                 method: 'POST',
                 credentials: 'include'
+            }),
+            logout: () => fetch('/api/Auth/logout', {
+                method: 'POST',
+                credentials: 'include'
             })
             
         };
+
+        async function logout(event) {
+            event?.preventDefault();
+            console.log('Logout solicitado');
+
+            const btnSair = document.getElementById('btnSair');
+            if (btnSair) {
+                btnSair.disabled = true;
+                btnSair.textContent = 'Saindo...';
+            }
+
+            try {
+                const response = await API.logout();
+                if (!response.ok) {
+                    throw new Error('Nao foi possivel sair agora.');
+                }
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+            } finally {
+                localStorage.removeItem('nomeUsuario');
+                localStorage.removeItem('fotoPerfilUrl');
+                localStorage.removeItem('convitesPendentes');
+                window.location.replace('/index.html');
+            }
+        }
+
+        document.addEventListener('click', (event) => {
+            const btnSair = event.target.closest('#btnSair');
+            if (!btnSair) return;
+            logout(event);
+        });
 
         const Prioridade = { Alta: 0, Media: 1, Baixa: 2 };
 

@@ -9,14 +9,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="MainScreen.css">
+    <link id="mainScreenStylesheet" rel="stylesheet" href="MainScreen.css?v=20260524">
+    <script>
+        if (window.location.protocol !== 'file:') {
+            document.getElementById('mainScreenStylesheet').href = '/MainScreenComponent/MainScreen.css?v=20260524';
+        }
+    </script>
 </head>
 <body>
     <header class="app-header">
         <div class="brand-wrap">
             <span class="logo-mark">T</span>
             <span class="brand">TASKPI</span>
-            <span>Bem vindo: <span style="font-weight:bold" id="NameUser"></span></span>
+            <span class="welcome-text">Bem vindo: <span style="font-weight:bold" id="NameUser"></span></span>
         </div>
         <div class="header-actions">
             <a class="profile-link" href="/perfil" title="Editar perfil">
@@ -28,7 +33,7 @@
   <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/>
 </svg> <span class="notification-count" id="conviteCount">0</span>
             </button>
-            <a class="btn-leave" href="/index.html">← Sair</a>
+            <button type="button" class="btn-leave" id="btnSair">← Sair</button>
         </div>
     </header>
     <div class="layout">
@@ -247,7 +252,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"></script>
-    <script src="MainScreen.js"></script>
+    <script>
+        const mainScreenScript = document.createElement('script');
+        mainScreenScript.src = window.location.protocol === 'file:'
+            ? 'MainScreen.js?v=20260524'
+            : '/MainScreenComponent/MainScreen.js?v=20260524';
+        document.body.appendChild(mainScreenScript);
+    </script>
 </body>
 </html>
 

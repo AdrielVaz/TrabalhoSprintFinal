@@ -61,6 +61,11 @@
             <param name="input">Nome, email e senha do novo usuário.</param>
             <returns>Dados básicos do cadastro e mensagem para confirmar email.</returns>
         </member>
+        <member name="M:Sprint3.Controllers.AuthController.Logout">
+            <summary>
+            Encerra a sessão removendo o cookie JWT de autenticação.
+            </summary>
+        </member>
         <member name="M:Sprint3.Controllers.AuthController.ConfirmarEmail(System.String,System.String)">
             <summary>
             Confirma o email do usuário usando o token enviado por email.
