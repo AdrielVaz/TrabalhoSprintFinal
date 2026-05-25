@@ -13,6 +13,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var appPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(appPort))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{appPort}");
+}
+
 LoadDotEnv(builder.Configuration, builder.Environment.ContentRootPath);
 
 builder.Services.AddControllers();

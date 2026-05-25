@@ -1,0 +1,8 @@
+**/bin/
+**/obj/
+.git/
+.vs/
+.env
+*.env
+.codex-build-check/
+build-check/
