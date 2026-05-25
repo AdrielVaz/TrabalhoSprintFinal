@@ -7,94 +7,117 @@ if (nome) {
 
 renderHeaderProfile(nome, fotoPerfilUrl);
 
+let loadingRequestCount = 0;
+
+function atualizarLoading() {
+    const loading = document.getElementById('requestLoading');
+    if (!loading) return;
+
+    const ativo = loadingRequestCount > 0;
+    loading.classList.toggle('active', ativo);
+    loading.setAttribute('aria-hidden', ativo ? 'false' : 'true');
+}
+
+async function apiFetch(url, options) {
+    loadingRequestCount++;
+    atualizarLoading();
+
+    try {
+        return await fetch(url, options);
+    } finally {
+        loadingRequestCount = Math.max(0, loadingRequestCount - 1);
+        atualizarLoading();
+    }
+}
+
 const API = {
-    listProjetos: () => fetch('/api/Projetos/projetos/Listar', {
+    listProjetos: () => apiFetch('/api/Projetos/projetos/Listar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: '{}'
     }),
-    criarProjeto: (descricao) => fetch('/api/Projetos', {
+    criarProjeto: (descricao) => apiFetch('/api/Projetos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ descricao })
     }),
-    atualizarProjeto: (id, descricao) => fetch(`/api/Projetos/${id}`, {
+    atualizarProjeto: (id, descricao) => apiFetch(`/api/Projetos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ descricao })
     }),
-    deletarProjeto: (id) => fetch(`/api/Projetos/${id}`, {
+    deletarProjeto: (id) => apiFetch(`/api/Projetos/${id}`, {
         method: 'DELETE',
         credentials: 'include'
     }),
-    removerMembroProjeto: (projetoId, email) => fetch(`/api/Projetos/${projetoId}/membros/remover`, {
+    removerMembroProjeto: (projetoId, email) => apiFetch(`/api/Projetos/${projetoId}/membros/remover`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ email })
     }),
-    listarAtividades: (projetoId) => fetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
+    listarAtividades: (projetoId) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
         credentials: 'include'
     }),
-    criarAtividade: (projetoId, body) => fetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
+    criarAtividade: (projetoId, body) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
     }),
-    atualizarAtividade: (projetoId, atividadeId, body) => fetch(`/api/Atividades/projetos/${projetoId}/atividades/${atividadeId}`, {
+    atualizarAtividade: (projetoId, atividadeId, body) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades/${atividadeId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
     }),
-    deletarAtividade: (projetoId, atividadeId) => fetch(`/api/Atividades/projetos/${projetoId}/atividades/${atividadeId}`, {
+    deletarAtividade: (projetoId, atividadeId) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades/${atividadeId}`, {
         method: 'DELETE',
         credentials: 'include'
     }),
-    criarTarefa: (projetoId, atividadeId, body) => fetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas`, {
+    criarTarefa: (projetoId, atividadeId, body) => apiFetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
     }),
-    atualizarTarefa: (projetoId, atividadeId, tarefaId, body) => fetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas/${tarefaId}`, {
+    atualizarTarefa: (projetoId, atividadeId, tarefaId, body) => apiFetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas/${tarefaId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
     }),
-    deletarTarefa: (projetoId, atividadeId, tarefaId) => fetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas/${tarefaId}`, {
+    deletarTarefa: (projetoId, atividadeId, tarefaId) => apiFetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas/${tarefaId}`, {
         method: 'DELETE',
         credentials: 'include'
     }),
-    listarMembros: (projetoId) => fetch(`/api/Projetos/${projetoId}/membros`, {
+    listarMembros: (projetoId) => apiFetch(`/api/Projetos/${projetoId}/membros`, {
         credentials: 'include'
     }),
-    compartilharProjeto: (projetoId, body) => fetch(`/api/Projetos/${projetoId}/acessos`, {
+    compartilharProjeto: (projetoId, body) => apiFetch(`/api/Projetos/${projetoId}/acessos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
     }),
-    listarConvites: () => fetch('/api/Projetos/convites/pendentes', {
+    listarConvites: () => apiFetch('/api/Projetos/convites/pendentes', {
         credentials: 'include'
     }),
-    obterPerfil: () => fetch('/api/Usuarios/me', {
+    obterPerfil: () => apiFetch('/api/Usuarios/me', {
         credentials: 'include'
     }),
-    aceitarConvite: (conviteId) => fetch(`/api/Projetos/convites/${conviteId}/aceitar`, {
+    aceitarConvite: (conviteId) => apiFetch(`/api/Projetos/convites/${conviteId}/aceitar`, {
         method: 'POST',
         credentials: 'include'
     }),
-    recusarConvite: (conviteId) => fetch(`/api/Projetos/convites/${conviteId}/recusar`, {
+    recusarConvite: (conviteId) => apiFetch(`/api/Projetos/convites/${conviteId}/recusar`, {
         method: 'POST',
         credentials: 'include'
     }),
-    logout: () => fetch('/api/Auth/logout', {
+    logout: () => apiFetch('/api/Auth/logout', {
         method: 'POST',
         credentials: 'include'
     })
@@ -470,7 +493,8 @@ function criarCard(t, atividadeId) {
     div.draggable = podeEditarQuadro();
     div.dataset.tarefaId = t.id;
     div.dataset.atividadeId = atividadeId;
-    const descPrev = (t.descricao || '').trim().slice(0, 120);
+    const descricaoTarefa = (t.descricao || '').trim();
+    const descPrev = descricaoTarefa.slice(0, 220);
     div.innerHTML =
         '<div class="card-topline"><div class="card-badges">' +
         '<span class="prio-badge ' + pl.badge + '">' + pl.text + '</span>' +
@@ -478,7 +502,7 @@ function criarCard(t, atividadeId) {
         '</div>' + (podeEditarQuadro() ? '<div class="card-actions">' +
             '<button type="button" class="btn-icon" data-del="' + t.id + '" title="Excluir">✕</button></div>' : '') + '</div>' +
         '<div class="title">' + escapeHtml(t.titulo || '') + '</div>' +
-        (descPrev ? '<div class="desc-preview">' + escapeHtml(descPrev) + (t.descricao && t.descricao.length > 120 ? '…' : '') + '</div>' : '');
+        (descPrev ? '<div class="desc-preview"><span class="desc-label">Descrição</span><p>' + escapeHtml(descPrev) + (descricaoTarefa.length > 220 ? '…' : '') + '</p></div>' : '');
 
     div.addEventListener('dragstart', () => {
         if (!podeEditarQuadro()) return;
