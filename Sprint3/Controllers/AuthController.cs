@@ -26,17 +26,23 @@ namespace Sprint3.Controllers
         private readonly IConfiguration _configuration;
         private readonly IProjetoService _projetoService;
         private readonly IEmailService _emailService;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             IUsuarioRepository usuarioRepo,
             IConfiguration configuration,
             IProjetoService projetoService,
-            IEmailService emailService)
+            IEmailService emailService,
+            IServiceScopeFactory scopeFactory,
+            ILogger<AuthController> logger)
         {
             _usuarioRepo = usuarioRepo;
             _configuration = configuration;
             _projetoService = projetoService;
             _emailService = emailService;
+            _scopeFactory = scopeFactory;
+            _logger = logger;
         }
 
         /// <summary>
@@ -155,7 +161,7 @@ namespace Sprint3.Controllers
             };
 
             await _usuarioRepo.Criar(usuario);
-            await EnviarConfirmacaoEmail(usuario);
+            DispararConfirmacaoEmailEmSegundoPlano(usuario.Id);
 
             return CreatedAtAction(nameof(Register), new
             {
@@ -298,6 +304,38 @@ namespace Sprint3.Controllers
                 usuario.Email,
                 "Confirme sua conta TASKPI",
                 $"<p>Ola, {HtmlEncoder.Default.Encode(usuario.Nome)}.</p><p>Confirme sua conta pelo link abaixo:</p><p><a href=\"{link}\">Confirmar email</a></p>");
+        }
+
+        private void DispararConfirmacaoEmailEmSegundoPlano(int usuarioId)
+        {
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var usuarioRepo = scope.ServiceProvider.GetRequiredService<IUsuarioRepository>();
+                    var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                    var usuario = await usuarioRepo.ObterPorId(usuarioId);
+
+                    if (usuario?.EmailConfirmacaoToken is null)
+                    {
+                        return;
+                    }
+
+                    var link = $"{baseUrl}/api/Auth/confirmar-email?email={Uri.EscapeDataString(usuario.Email)}&token={Uri.EscapeDataString(usuario.EmailConfirmacaoToken)}";
+                    await emailService.EnviarEmailAsync(
+                        usuario.Email,
+                        "Confirme sua conta TASKPI",
+                        $"<p>Ola, {HtmlEncoder.Default.Encode(usuario.Nome)}.</p><p>Confirme sua conta pelo link abaixo:</p><p><a href=\"{link}\">Confirmar email</a></p>");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Falha ao enviar email de confirmacao em segundo plano para o usuario {UsuarioId}", usuarioId);
+                }
+            });
         }
 
         private async Task EnviarRedefinicaoSenha(Usuario usuario)
