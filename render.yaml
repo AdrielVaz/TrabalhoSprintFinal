@@ -29,3 +29,11 @@ services:
         sync: false
       - key: Email__Smtp__FromName
         value: TASKPI
+      - key: Email__Provider
+        value: Resend
+      - key: Email__Resend__ApiKey
+        sync: false
+      - key: Email__Resend__From
+        sync: false
+      - key: Email__Resend__FromName
+        value: TASKPI
