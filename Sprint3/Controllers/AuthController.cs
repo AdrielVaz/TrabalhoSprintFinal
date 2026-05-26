@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Sprint3.DTOs;
 using Sprint3.Models;
 using Sprint3.Repositories.Interfaces;
@@ -76,38 +78,38 @@ namespace Sprint3.Controllers
                 return Unauthorized(new { message = "Confirme seu email antes de entrar." });
             }
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+                new Claim(ClaimTypes.Name, usuario.Nome),
                 new Claim(ClaimTypes.Email, usuario.Email),
-                new Claim("name", usuario.Nome)
+                new Claim("id", usuario.Id.ToString()),
+                new Claim("nome", usuario.Nome),
+                new Claim("email", usuario.Email)
             };
-            var jwtSettings = _configuration.GetSection("Jwt");
 
-            var signingKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!)
-            );
-            var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-
-            var tokenDescriptor = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: credentials
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                ClaimTypes.Name,
+                ClaimTypes.Role
             );
 
-            string token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(2),
+                    AllowRefresh = true
+                }
+            );
 
-            Response.Cookies.Append("authToken", token, new CookieOptions
+            Response.Cookies.Delete("authToken_legacy", new CookieOptions
             {
-                HttpOnly = true,
-                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.Lax,
-                Path = "/",
-                Expires = DateTime.UtcNow.AddMinutes(15)
+                Path = "/"
             });
 
             return Ok(new
@@ -167,12 +169,11 @@ namespace Sprint3.Controllers
         /// Encerra a sessão removendo o cookie JWT de autenticação.
         /// </summary>
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             Response.Cookies.Delete("authToken", new CookieOptions
             {
-                HttpOnly = true,
-                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.Lax,
                 Path = "/"
             });

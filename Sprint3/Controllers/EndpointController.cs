@@ -6,6 +6,13 @@ namespace Sprint3.Controllers
     [Route("[controller]")]
     public class EndpointController : ControllerBase
     {
+        private readonly IWebHostEnvironment _environment;
+
+        public EndpointController(IWebHostEnvironment environment)
+        {
+            _environment = environment;
+        }
+
         [HttpGet("/")]
         public IActionResult Index()
         {
@@ -27,7 +34,7 @@ namespace Sprint3.Controllers
         [HttpGet("/redefinir-senha")]
         public IActionResult RedefinirSenha()
         {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "AuthComponent", "RedefinirSenha.html");
+            var path = Path.Combine(_environment.WebRootPath, "AuthComponent", "RedefinirSenha.html");
             if (!System.IO.File.Exists(path)) return NotFound();
             return PhysicalFile(path, "text/html");
         }
@@ -36,7 +43,7 @@ namespace Sprint3.Controllers
         [HttpGet("/mainscreen")]
         public IActionResult MainScreen()
         {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "MainScreenComponent", "MainScreen.html");
+            var path = Path.Combine(_environment.WebRootPath, "MainScreenComponent", "MainScreen.html");
             if (!System.IO.File.Exists(path)) return NotFound();
             return PhysicalFile(path, "text/html");
         }
@@ -45,7 +52,7 @@ namespace Sprint3.Controllers
         [HttpGet("/perfil")]
         public IActionResult Perfil()
         {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "PerfilComponent", "Perfil.html");
+            var path = Path.Combine(_environment.WebRootPath, "PerfilComponent", "Perfil.html");
             if (!System.IO.File.Exists(path)) return NotFound();
             return PhysicalFile(path, "text/html");
         }

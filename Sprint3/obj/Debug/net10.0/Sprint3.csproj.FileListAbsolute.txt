@@ -399,7 +399,6 @@ C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\tdr5vif0
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\ewktlct41l-{0}-pxdiqtabxo-pxdiqtabxo.gz
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\lkqxaqa90n-{0}-dtaicl3zrr-dtaicl3zrr.gz
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\g796lc8a38-{0}-8phr74n4tk-8phr74n4tk.gz
-C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\r5omho4u9d-{0}-2vemcvraoa-2vemcvraoa.gz
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\zdes6rfuju-{0}-eu8o395r4b-eu8o395r4b.gz
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\aark3i9cac-{0}-279k55grb4-279k55grb4.gz
 C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\hd1041fd6k-{0}-nv3kkyvxs7-nv3kkyvxs7.gz
@@ -410,3 +409,4 @@ C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\compressed\2to5dwhe
 C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\compressed\yhf84yqoxj-{0}-gofjkshn1p-gofjkshn1p.gz
 C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\compressed\95wks6dc5i-{0}-a90g6vz3pt-a90g6vz3pt.gz
 C:\Users\Alisson\Downloads\Sprint3\sprint3\obj\Debug\net10.0\compressed\7fm3beoaoi-{0}-f7e5dhadkr-f7e5dhadkr.gz
+C:\Users\Alisson\Downloads\Sprint3\Sprint3\obj\Debug\net10.0\compressed\r5omho4u9d-{0}-z0d20cfpp4-z0d20cfpp4.gz
