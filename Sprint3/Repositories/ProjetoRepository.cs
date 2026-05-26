@@ -24,6 +24,7 @@ namespace Sprint3.Repositories
         public async Task<Projeto> ObterPorId(int id)
         {
             var projeto = await _context.Projetos
+                .AsNoTracking()
                 .Include(p => p.Usuario)
                 .Include(p => p.Acessos)
                 .ThenInclude(a => a.Usuario)
@@ -38,6 +39,7 @@ namespace Sprint3.Repositories
         public async Task<List<Projeto>> ListarPorUsuario(int usuarioId)
         {
             return await _context.Projetos
+                .AsNoTracking()
                 .Include(p => p.Acessos)
                 .Where(p => p.UsuarioId == usuarioId || p.Acessos.Any(a => a.UsuarioId == usuarioId))
                 .ToListAsync();

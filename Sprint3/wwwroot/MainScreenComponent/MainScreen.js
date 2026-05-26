@@ -8,25 +8,42 @@ if (nome) {
 renderHeaderProfile(nome, fotoPerfilUrl);
 
 let loadingRequestCount = 0;
+let loadingMessages = [];
 
 function atualizarLoading() {
     const loading = document.getElementById('requestLoading');
     if (!loading) return;
 
     const ativo = loadingRequestCount > 0;
+    const texto = document.getElementById('requestLoadingText');
+    if (texto) {
+        texto.textContent = loadingMessages[loadingMessages.length - 1] || 'Carregando...';
+    }
+
     loading.classList.toggle('active', ativo);
     loading.setAttribute('aria-hidden', ativo ? 'false' : 'true');
 }
 
-async function apiFetch(url, options) {
-    loadingRequestCount++;
-    atualizarLoading();
+async function apiFetch(url, options, config = {}) {
+    const silent = Boolean(config.silent);
+    const loadingText = config.loadingText || 'Carregando...';
+    if (!silent) {
+        loadingRequestCount++;
+        loadingMessages.push(loadingText);
+        atualizarLoading();
+    }
 
     try {
         return await fetch(url, options);
     } finally {
-        loadingRequestCount = Math.max(0, loadingRequestCount - 1);
-        atualizarLoading();
+        if (!silent) {
+            loadingRequestCount = Math.max(0, loadingRequestCount - 1);
+            const messageIndex = loadingMessages.lastIndexOf(loadingText);
+            if (messageIndex >= 0) {
+                loadingMessages.splice(messageIndex, 1);
+            }
+            atualizarLoading();
+        }
     }
 }
 
@@ -36,91 +53,91 @@ const API = {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: '{}'
-    }),
+    }, { loadingText: 'Carregando projetos...' }),
     criarProjeto: (descricao) => apiFetch('/api/Projetos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ descricao })
-    }),
+    }, { loadingText: 'Salvando projeto...' }),
     atualizarProjeto: (id, descricao) => apiFetch(`/api/Projetos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ descricao })
-    }),
+    }, { loadingText: 'Atualizando projeto...' }),
     deletarProjeto: (id) => apiFetch(`/api/Projetos/${id}`, {
         method: 'DELETE',
         credentials: 'include'
-    }),
+    }, { loadingText: 'Excluindo projeto...' }),
     removerMembroProjeto: (projetoId, email) => apiFetch(`/api/Projetos/${projetoId}/membros/remover`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ email })
-    }),
-    listarAtividades: (projetoId) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
+    }, { loadingText: 'Removendo membro...' }),
+    listarAtividades: (projetoId, silent = false) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
         credentials: 'include'
-    }),
+    }, { silent, loadingText: 'Carregando atividades...' }),
     criarAtividade: (projetoId, body) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
-    }),
+    }, { loadingText: 'Salvando atividade...' }),
     atualizarAtividade: (projetoId, atividadeId, body) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades/${atividadeId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
-    }),
+    }, { loadingText: 'Atualizando atividade...' }),
     deletarAtividade: (projetoId, atividadeId) => apiFetch(`/api/Atividades/projetos/${projetoId}/atividades/${atividadeId}`, {
         method: 'DELETE',
         credentials: 'include'
-    }),
+    }, { loadingText: 'Excluindo atividade...' }),
     criarTarefa: (projetoId, atividadeId, body) => apiFetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
-    }),
+    }, { loadingText: 'Salvando tarefa...' }),
     atualizarTarefa: (projetoId, atividadeId, tarefaId, body) => apiFetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas/${tarefaId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
-    }),
+    }, { loadingText: 'Atualizando tarefa...' }),
     deletarTarefa: (projetoId, atividadeId, tarefaId) => apiFetch(`/api/Tarefas/projetos/${projetoId}/atividades/${atividadeId}/tarefas/${tarefaId}`, {
         method: 'DELETE',
         credentials: 'include'
-    }),
-    listarMembros: (projetoId) => apiFetch(`/api/Projetos/${projetoId}/membros`, {
+    }, { loadingText: 'Excluindo tarefa...' }),
+    listarMembros: (projetoId, silent = false) => apiFetch(`/api/Projetos/${projetoId}/membros`, {
         credentials: 'include'
-    }),
+    }, { silent, loadingText: 'Carregando membros...' }),
     compartilharProjeto: (projetoId, body) => apiFetch(`/api/Projetos/${projetoId}/acessos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
-    }),
-    listarConvites: () => apiFetch('/api/Projetos/convites/pendentes', {
+    }, { loadingText: 'Enviando convite...' }),
+    listarConvites: (silent = false) => apiFetch('/api/Projetos/convites/pendentes', {
         credentials: 'include'
-    }),
-    obterPerfil: () => apiFetch('/api/Usuarios/me', {
+    }, { silent, loadingText: 'Carregando convites...' }),
+    obterPerfil: (silent = false) => apiFetch('/api/Usuarios/me', {
         credentials: 'include'
-    }),
+    }, { silent, loadingText: 'Carregando perfil...' }),
     aceitarConvite: (conviteId) => apiFetch(`/api/Projetos/convites/${conviteId}/aceitar`, {
         method: 'POST',
         credentials: 'include'
-    }),
+    }, { loadingText: 'Aceitando convite...' }),
     recusarConvite: (conviteId) => apiFetch(`/api/Projetos/convites/${conviteId}/recusar`, {
         method: 'POST',
         credentials: 'include'
-    }),
+    }, { loadingText: 'Recusando convite...' }),
     logout: () => apiFetch('/api/Auth/logout', {
         method: 'POST',
         credentials: 'include'
-    })
+    }, { loadingText: 'Saindo...' })
 
 };
 
@@ -178,6 +195,144 @@ let projetoEditandoId = null;
 let atividadeEditandoId = null;
 let projetoContextoId = null;
 let membroRemocaoEmail = null;
+let projetosCacheCarregado = false;
+const boardCache = new Map();
+const boardCachePromises = new Map();
+
+function invalidarCacheProjetos() {
+    projetosCacheCarregado = false;
+}
+
+function invalidarCacheBoard(projetoId = projetoAtual?.id) {
+    if (!projetoId) return;
+    const key = Number(projetoId);
+    boardCache.delete(key);
+    boardCachePromises.delete(key);
+    renderListaProjetosSePronto();
+}
+
+function salvarCacheBoard(projetoId, atividadesCache, membrosCache) {
+    boardCache.set(Number(projetoId), {
+        atividades: structuredCloneSafe(atividadesCache),
+        membros: structuredCloneSafe(membrosCache)
+    });
+}
+
+function obterCacheBoard(projetoId) {
+    const cached = boardCache.get(Number(projetoId));
+    if (!cached) return null;
+
+    return {
+        atividades: structuredCloneSafe(cached.atividades),
+        membros: structuredCloneSafe(cached.membros)
+    };
+}
+
+function renderListaProjetosSePronto() {
+    if (document.getElementById('projetoList')) {
+        renderListaProjetos();
+    }
+}
+
+function estadoCacheProjeto(projetoId) {
+    const key = Number(projetoId);
+
+    if (boardCache.has(key)) {
+        return { classe: 'ready', texto: 'cache pronto' };
+    }
+
+    if (boardCachePromises.has(key)) {
+        return { classe: 'loading', texto: 'cacheando' };
+    }
+
+    return { classe: 'cold', texto: 'sem cache' };
+}
+
+async function buscarBoardProjeto(projetoId, options = {}) {
+    const key = Number(projetoId);
+    const cached = obterCacheBoard(key);
+    if (cached) return cached;
+
+    if (boardCachePromises.has(key)) {
+        return boardCachePromises.get(key);
+    }
+
+    const silent = Boolean(options.silent);
+    const promise = (async () => {
+        const [res, membrosRes] = await Promise.all([
+            API.listarAtividades(key, silent),
+            API.listarMembros(key, silent)
+        ]);
+
+        if (res.status === 401) {
+            throw new Error('UNAUTHORIZED');
+        }
+
+        const atividadesData = await handleRes(res);
+        let membrosData = [];
+        try {
+            membrosData = await handleRes(membrosRes);
+        } catch {
+            membrosData = [];
+        }
+
+        salvarCacheBoard(key, atividadesData, membrosData);
+        return obterCacheBoard(key);
+    })();
+
+    boardCachePromises.set(key, promise);
+    renderListaProjetosSePronto();
+
+    try {
+        return await promise;
+    } finally {
+        boardCachePromises.delete(key);
+        renderListaProjetosSePronto();
+    }
+}
+
+function preCarregarBoardsNoCache() {
+    const ids = projetos
+        .map(p => Number(p.id))
+        .filter(id => id && !boardCache.has(id) && !boardCachePromises.has(id));
+
+    if (!ids.length) return;
+
+    mostrarFonteBoard('refresh', 'Atualizando cache em segundo plano...');
+
+    const promessas = ids.map(projetoId =>
+        buscarBoardProjeto(projetoId, { silent: true }).catch(() => null)
+    );
+
+    Promise.allSettled(promessas).then(() => {
+        renderListaProjetosSePronto();
+        if (projetoAtual && boardCache.has(Number(projetoAtual.id))) {
+            mostrarFonteBoard('cache', 'Cache pronto');
+        }
+    });
+}
+
+function structuredCloneSafe(value) {
+    if (typeof structuredClone === 'function') {
+        return structuredClone(value);
+    }
+
+    return JSON.parse(JSON.stringify(value));
+}
+
+function mostrarFonteBoard(tipo, texto) {
+    const el = document.getElementById('boardSource');
+    if (!el) return;
+
+    if (!texto) {
+        el.className = 'board-source';
+        el.textContent = '';
+        return;
+    }
+
+    el.className = 'board-source show ' + tipo;
+    el.textContent = texto;
+}
 
 function nivelProjeto(projeto = projetoAtual) {
     return (projeto && projeto.nivelAcesso ? projeto.nivelAcesso : '').toString();
@@ -212,14 +367,17 @@ async function handleRes(res, okMsg) {
 }
 
 async function carregarProjetos() {
-    const res = await API.listProjetos();
+    if (!projetosCacheCarregado) {
+        const res = await API.listProjetos();
 
-    if (res.status === 401) {
-        window.location.href = '/index.html';
-        return;
+        if (res.status === 401) {
+            window.location.href = '/index.html';
+            return;
+        }
+
+        projetos = await handleRes(res);
+        projetosCacheCarregado = true;
     }
-
-    projetos = await handleRes(res);
 
     // pega o projeto salvo
     const projetoSalvoId = parseInt(localStorage.getItem('projetoAtualId'));
@@ -228,6 +386,8 @@ async function carregarProjetos() {
     const projetoSalvo = projetos.find(p => p.id === projetoSalvoId);
 
     renderListaProjetos();
+
+    preCarregarBoardsNoCache();
 
     if (projetoAtual && !projetos.find(p => p.id === projetoAtual.id)) {
         projetoAtual = null;
@@ -249,6 +409,7 @@ async function carregarProjetos() {
     else {
         mostrarBoardVazio();
     }
+
 }
 
 function renderListaProjetos() {
@@ -258,6 +419,7 @@ function renderListaProjetos() {
         const b = document.createElement('button');
         b.type = 'button';
         const compartilhado = Boolean(p.compartilhado) || (p.nivelAcesso && p.nivelAcesso !== 'Adm');
+        const estadoCache = estadoCacheProjeto(p.id);
         b.className = 'projeto-item' + (compartilhado ? ' shared' : '') + (projetoAtual && projetoAtual.id === p.id ? ' active' : '');
         b.title = (p.descricao || ('Projeto #' + p.id)) + ' - ' + (compartilhado ? 'Compartilhado' : 'Meu projeto');
         b.innerHTML =
@@ -266,6 +428,7 @@ function renderListaProjetos() {
             '<span class="project-name">' + escapeHtml(p.descricao || ('Projeto #' + p.id)) + '</span>' +
             '<span class="project-meta"><span class="project-person-icon" aria-hidden="true">' + personIconSvg(compartilhado) + '</span>' +
             '<span class="project-badge">' + (compartilhado ? 'Compartilhado' : 'Meu projeto') + (p.nivelAcesso ? ' · ' + escapeHtml(p.nivelAcesso) : '') + '</span></span>' +
+            '<span class="project-cache-state ' + estadoCache.classe + '">' + estadoCache.texto + '</span>' +
             '</span>';
         b.onclick = () => selecionarProjeto(p.id);
         b.oncontextmenu = async (e) => {
@@ -297,23 +460,42 @@ async function selecionarProjeto(id) {
 }
 
 async function carregarBoardProjeto(projetoId) {
-    const res = await API.listarAtividades(projetoId);
-    if (res.status === 401) {
-        window.location.href = '/index.html';
+    const cached = obterCacheBoard(projetoId);
+    if (cached) {
+        atividades = cached.atividades;
+        membros = cached.membros;
+        renderBoard();
+        mostrarFonteBoard('cache', 'Dados em cache');
         return;
     }
-    atividades = await handleRes(res);
+
     try {
-        membros = await handleRes(await API.listarMembros(projetoId));
-    } catch {
-        membros = [];
+        const aguardandoCache = boardCachePromises.has(Number(projetoId));
+        if (!aguardandoCache) {
+            buscarBoardProjeto(projetoId, { silent: true }).catch(() => null);
+        }
+
+        mostrarFonteBoard('refresh', aguardandoCache ? 'Aguardando cache em andamento...' : 'Atualizando cache em segundo plano...');
+
+        const data = await buscarBoardProjeto(projetoId);
+        atividades = data.atividades;
+        membros = data.membros;
+        renderBoard();
+        mostrarFonteBoard('cache', 'Dados em cache');
+    } catch (error) {
+        if (error.message === 'UNAUTHORIZED') {
+            window.location.href = '/index.html';
+            return;
+        }
+
+        toast(error.message || 'Erro ao carregar projeto.', true);
     }
-    renderBoard();
 }
 
 function mostrarBoardVazio() {
     document.getElementById('emptyState').style.display = 'flex';
     document.getElementById('boardContent').style.display = 'none';
+    mostrarFonteBoard('', '');
 }
 
 function renderBoard() {
@@ -563,6 +745,7 @@ async function onDropTarefa(targetAtividadeId) {
         await handleRes(
             await API.atualizarTarefa(projetoAtual.id, targetAtividadeId, draggedTarefaId, payload)
         );
+        invalidarCacheBoard(projetoAtual.id);
         await carregarBoardProjeto(projetoAtual.id);
     } catch (e) {
         toast(e.message, true);
@@ -631,6 +814,7 @@ async function salvarTarefaModal() {
             await handleRes(await API.criarTarefa(projetoAtual.id, atividadeAtualParaNovaTarefa, body), 'Tarefa criada.');
         }
         modalTarefaBootstrap.hide();
+        invalidarCacheBoard(projetoAtual.id);
         await carregarBoardProjeto(projetoAtual.id);
     } catch (e) {
         toast(e.message, true);
@@ -641,6 +825,7 @@ async function excluirTarefa(atividadeId, id) {
     try {
         await handleRes(await API.deletarTarefa(projetoAtual.id, atividadeId, id));
         modalTarefaBootstrap.hide();
+        invalidarCacheBoard(projetoAtual.id);
         await carregarBoardProjeto(projetoAtual.id);
     } catch (e) {
         toast(e.message, true);
@@ -655,6 +840,8 @@ async function excluirProjeto(id) {
             atividades = [];
             membros = [];
         }
+        invalidarCacheProjetos();
+        invalidarCacheBoard(id);
         await carregarProjetos();
         toast('Projeto removido.');
     } catch (e) {
@@ -810,6 +997,7 @@ async function salvarAtividadeModal() {
         }
         modalAtividadeBootstrap.hide();
         atividadeEditandoId = null;
+        invalidarCacheBoard(projetoAtual.id);
         await carregarBoardProjeto(projetoAtual.id);
     } catch (e) { toast(e.message, true); }
 }
@@ -820,6 +1008,7 @@ async function excluirAtividade(id) {
 
     try {
         await handleRes(await API.deletarAtividade(projetoAtual.id, id));
+        invalidarCacheBoard(projetoAtual.id);
         await carregarBoardProjeto(projetoAtual.id);
         toast('Atividade removida.');
     } catch (e) {
@@ -851,7 +1040,7 @@ async function confirmarCompartilhar() {
 async function carregarConvitesPendentes() {
     try {
         const salvos = JSON.parse(localStorage.getItem('convitesPendentes') || '[]');
-        convitesPendentes = salvos.length ? salvos : await handleRes(await API.listarConvites());
+                convitesPendentes = salvos.length ? salvos : await handleRes(await API.listarConvites(true));
         localStorage.setItem('convitesPendentes', JSON.stringify(convitesPendentes));
     } catch {
         convitesPendentes = [];
@@ -904,6 +1093,8 @@ async function responderConvite(conviteId, aceitou) {
         convitesPendentes = convitesPendentes.filter(c => c.id !== conviteId);
         localStorage.setItem('convitesPendentes', JSON.stringify(convitesPendentes));
         renderConvites();
+        invalidarCacheProjetos();
+        boardCache.clear();
         await carregarProjetos();
     } catch (e) {
         toast(e.message, true);
@@ -936,6 +1127,7 @@ document.getElementById('btnConfirmarRemoverMembro').addEventListener('click', a
     try {
         await handleRes(await API.removerMembroProjeto(projetoContextoId || projetoAtual.id, email), 'Participante removido.');
         modalRemoverMembroBootstrap.hide();
+        invalidarCacheBoard(projetoContextoId || projetoAtual.id);
         await carregarBoardProjeto(projetoAtual.id);
     } catch (e) {
         toast(e.message, true);
@@ -965,6 +1157,7 @@ document.getElementById('btnSalvarProjeto').addEventListener('click', async () =
             }
             modalProjetoBootstrap.hide();
             projetoEditandoId = null;
+            invalidarCacheProjetos();
             renderListaProjetos();
             await carregarBoardProjeto(atualizado.id);
         } else {
@@ -972,6 +1165,8 @@ document.getElementById('btnSalvarProjeto').addEventListener('click', async () =
             modalProjetoBootstrap.hide();
             projetos.push(created);
             projetoAtual = created;
+            invalidarCacheProjetos();
+            salvarCacheBoard(created.id, [], []);
             renderListaProjetos();
             await carregarBoardProjeto(created.id);
         }
@@ -1026,7 +1221,7 @@ document.addEventListener('keydown', (event) => {
 window.addEventListener('scroll', fecharContextMenu, true);
 async function carregarUsuario() {
     try {
-        const response = await API.obterPerfil();
+        const response = await API.obterPerfil(true);
         if (response.status === 401) {
             window.location.href = '/index.html';
             return;
@@ -1035,7 +1230,6 @@ async function carregarUsuario() {
         const perfil = await response.json();
         localStorage.setItem('nomeUsuario', perfil.nome || '');
         localStorage.setItem('fotoPerfilUrl', perfil.fotoPerfilUrl || '');
-        localStorage.removeItem('projetoAtualId');
         document.getElementById('NameUser').innerText = perfil.nome || '';
         renderHeaderProfile(perfil.nome, perfil.fotoPerfilUrl);
     } catch (error) {

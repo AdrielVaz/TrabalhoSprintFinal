@@ -52,6 +52,7 @@ namespace Sprint3.Repositories
         public async Task<Atividade?> ObterPorId(int id)
         {
             return await _db.Atividades
+                .AsNoTracking()
                 .Include(a => a.Tarefas)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
@@ -59,6 +60,7 @@ namespace Sprint3.Repositories
         public async Task<List<Atividade>> ListarPorProjeto(int projetoId)
         {
             return await _db.Atividades
+                .AsNoTracking()
                 .Include(a => a.Tarefas)
                 .Where(a => a.ProjetoId == projetoId)
                 .ToListAsync();
